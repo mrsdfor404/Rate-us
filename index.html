@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rate Us</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #83a4d4, #b6fbff);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px 40px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            text-align: center;
+            width: 300px;
+        }
+        h2 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        select, input[type=number], button, a.button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover, a.button:hover {
+            background-color: #45a049;
+        }
+        a.button {
+            background-color: #008CBA;
+            color: white;
+        }
+        .message {
+            margin-top: 15px;
+            font-weight: bold;
+            color: #007700;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Rate Us</h2>
+
+        <!-- زر تجربة الموقع -->
+        <a id="tryLink" href="https://mrsdfor404.github.io/mrsdfor_store/?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAZXh0bgNhZW0CMTEAc3J0YwZhcHBfaWQPNTY3MDY3MzQzMzUyNDI3AAGnkVQ6UP6UxX8OtcXoftwR2cW8fYb325XAbm10t3OFDhaeiWTECVHbl6V05TQ_aem_ZROVCT7y2M3M7hUaLwHJOQ" target="_blank" class="button">Try Before You Rate</a>
+
+        <form id="ratingForm">
+            <label for="type">Choose what to rate:</label>
+            <select id="type" name="type" required>
+                <option value="store">Store</option>
+                <option value="game">Game</option>
+            </select>
+
+            <label for="rating">Rating (1-5):</label>
+            <input type="number" id="rating" name="rating" min="1" max="5" required>
+
+            <button type="submit">Submit Rating</button>
+        </form>
+        <div class="message" id="message"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById("ratingForm");
+        const message = document.getElementById("message");
+        const typeSelect = document.getElementById("type");
+        const tryLink = document.getElementById("tryLink");
+
+        // تحديث ظهور زر "Try Before You Rate" حسب الاختيار
+        function updateTryLink() {
+            if(typeSelect.value === "store") {
+                tryLink.style.display = "block";
+            } else {
+                tryLink.style.display = "none";
+            }
+        }
+
+        typeSelect.addEventListener("change", updateTryLink);
+        updateTryLink(); // عند تحميل الصفحة
+
+        form.addEventListener("submit", function(e){
+            e.preventDefault();
+            const type = typeSelect.value;
+            const rating = document.getElementById("rating").value;
+
+            if(rating < 1 || rating > 5){
+                message.textContent = "Please enter a number from 1 to 5 only.";
+                message.style.color = "red";
+                return;
+            }
+
+            message.style.color = "green";
+            message.textContent = `Thank you! Your ${type} rating of ${rating} has been received.`;
+
+            form.reset();
+            updateTryLink(); // إعادة ضبط الزر بعد إعادة تعيين النموذج
+        });
+    </script>
+</body>
+</html>
