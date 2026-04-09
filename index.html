@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title> snake </title>
+    <title>Hungry Snake </title>
     <style>
         body {
             margin: 0;
             overflow: hidden;
-            font-family: 'Cairo', 'Segoe UI', 'Tahoma', sans-serif;
+            font-family: 'Segoe UI', 'Tahoma', 'Cairo', sans-serif;
         }
-        /* واجهة اللعبة - طبقة فوق الـ Canvas */
+        /* UI Overlay */
         .ui {
             position: absolute;
             top: 20px;
@@ -24,34 +24,33 @@
             z-index: 10;
             pointer-events: none;
         }
-        .score-panel {
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(8px);
-            padding: 10px 20px;
+        .panel {
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(10px);
+            padding: 8px 20px;
             border-radius: 50px;
             color: #ffd966;
             font-weight: bold;
-            font-size: 1.5rem;
-            font-family: monospace;
-            border-left: 4px solid #ffaa33;
-            border-right: 4px solid #ffaa33;
-            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            font-size: 1.2rem;
+            border-left: 3px solid #ffaa33;
+            border-right: 3px solid #ffaa33;
             pointer-events: auto;
+            font-family: monospace;
         }
-        .score-panel span {
+        .panel span {
             color: white;
-            font-size: 1.8rem;
-            margin-left: 10px;
+            font-size: 1.6rem;
+            margin-left: 8px;
             background: #2c2e1e;
-            padding: 2px 12px;
+            padding: 0px 12px;
             border-radius: 40px;
         }
         .restart-btn {
             background: #ff7b2c;
             border: none;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: bold;
-            padding: 8px 22px;
+            padding: 6px 20px;
             border-radius: 40px;
             color: #2d1b0a;
             cursor: pointer;
@@ -65,24 +64,23 @@
             box-shadow: 0 1px 0 #a13f12;
         }
         .status-box {
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.75);
             backdrop-filter: blur(8px);
-            padding: 6px 18px;
+            padding: 5px 16px;
             border-radius: 40px;
             color: #ffdca8;
             font-weight: bold;
-            font-size: 1rem;
-            letter-spacing: 1px;
+            font-size: 0.9rem;
             pointer-events: auto;
         }
-        .hunger-bar-container {
+        .hunger-container {
             position: absolute;
             bottom: 25px;
             left: 20px;
             right: 20px;
             background: rgba(0,0,0,0.6);
             border-radius: 20px;
-            height: 20px;
+            height: 18px;
             backdrop-filter: blur(5px);
             z-index: 10;
             pointer-events: none;
@@ -95,39 +93,57 @@
             border-radius: 20px;
             transition: width 0.2s linear;
         }
-        .hunger-text {
+        .hunger-label {
             position: absolute;
-            bottom: 50px;
+            bottom: 48px;
             left: 20px;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.6);
             padding: 2px 12px;
             border-radius: 20px;
             color: #ffefb9;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: bold;
             pointer-events: none;
             font-family: monospace;
         }
+        .lang-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #2c3e2bdd;
+            backdrop-filter: blur(8px);
+            border: none;
+            padding: 6px 14px;
+            border-radius: 30px;
+            color: #f9e0a0;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 20;
+            font-family: inherit;
+            font-size: 0.8rem;
+            pointer-events: auto;
+        }
         @media (max-width: 700px) {
-            .score-panel { font-size: 1rem; padding: 6px 12px; }
-            .score-panel span { font-size: 1.3rem; }
-            .restart-btn { padding: 5px 14px; font-size: 1rem; }
+            .panel { font-size: 0.9rem; padding: 5px 12px; }
+            .panel span { font-size: 1.2rem; }
+            .restart-btn { padding: 4px 12px; font-size: 0.9rem; }
             .status-box { font-size: 0.7rem; }
         }
     </style>
 </head>
 <body>
+    <button class="lang-toggle" id="langBtn">🇸🇦 العربية</button>
     <div class="ui">
-        <div class="score-panel">🍎 التفاحات <span id="scoreValue">0</span></div>
-        <button class="restart-btn" id="resetButton">🐍 سلم جديد</button>
-        <div class="status-box" id="gameStatus">🌟 نشط</div>
+        <div class="panel" id="scorePanel">🍎 <span id="scoreValue">0</span></div>
+        <button class="restart-btn" id="resetButton">🐍 New Game</button>
+        <div class="status-box" id="gameStatus">✨ Active</div>
     </div>
-    <div class="hunger-bar-container">
-        <div class="hunger-fill" id="hungerFill" style="width: 100%;"></div>
+    <div class="hunger-container">
+        <div class="hunger-fill" id="hungerFill"></div>
     </div>
-    <div class="hunger-text">⏳ جوع: ينقص مع الوقت - أكل التفاح يعيد الشبع</div>
+    <div class="hunger-label" id="hungerLabel">Hunger: decays over time | Eat apples to refill</div>
 
-    <!-- استيراد Three.js والمكتبات المساعدة -->
+    <!-- Import Three.js core and addons -->
     <script type="importmap">
         {
             "imports": {
@@ -140,164 +156,247 @@
     <script type="module">
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-        import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
         
-        // ---------- إعداد المشهد 3D ----------
+        // ---------- Setup Scene (Fixed Camera) ----------
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x071a2b);
-        scene.fog = new THREE.FogExp2(0x071a2b, 0.008);
+        scene.fog = new THREE.FogExp2(0x071a2b, 0.006);
         
-        // كاميرا إيزومترية مائلة (منظر علوي مائل)
+        // Fixed camera: Isometric view, stable
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(18, 14, 18);
+        camera.position.set(16, 13, 16);
         camera.lookAt(0, 0, 0);
         
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.shadowMap.enabled = true; // ظلال جميلة
-        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         document.body.appendChild(renderer.domElement);
         
-        // CSS2DRenderer للنص فوق التفاح (اختياري)
-        const labelRenderer = new CSS2DRenderer();
-        labelRenderer.setSize(window.innerWidth, window.innerHeight);
-        labelRenderer.domElement.style.position = 'absolute';
-        labelRenderer.domElement.style.top = '0px';
-        labelRenderer.domElement.style.left = '0px';
-        labelRenderer.domElement.style.pointerEvents = 'none';
-        document.body.appendChild(labelRenderer.domElement);
-        
-        // إضاءة ناعمة درامية
+        // Lighting for realistic snake
         const ambientLight = new THREE.AmbientLight(0x404060);
         scene.add(ambientLight);
-        const mainLight = new THREE.DirectionalLight(0xfff5c0, 1.2);
+        const mainLight = new THREE.DirectionalLight(0xfff5c0, 1.3);
         mainLight.position.set(8, 12, 5);
         mainLight.castShadow = true;
         mainLight.receiveShadow = true;
         mainLight.shadow.mapSize.width = 1024;
         mainLight.shadow.mapSize.height = 1024;
         scene.add(mainLight);
-        const fillLight = new THREE.PointLight(0x5577aa, 0.4);
-        fillLight.position.set(-3, 5, 4);
+        const fillLight = new THREE.PointLight(0x88aaff, 0.45);
+        fillLight.position.set(-4, 5, 4);
         scene.add(fillLight);
-        const backLight = new THREE.PointLight(0xffaa66, 0.3);
-        backLight.position.set(0, 5, -6);
-        scene.add(backLight);
+        const rimLight = new THREE.PointLight(0xffaa66, 0.5);
+        rimLight.position.set(3, 4, -6);
+        scene.add(rimLight);
         
-        // أرضية شبكية جميلة (سلم)
-        const gridHelper = new THREE.GridHelper(28, 20, 0xaa9977, 0x7c6e4e);
+        // Ground and decorative elements
+        const gridHelper = new THREE.GridHelper(26, 20, 0xaa9977, 0x7c6e4e);
         gridHelper.position.y = -1.2;
         gridHelper.material.transparent = true;
-        gridHelper.material.opacity = 0.5;
+        gridHelper.material.opacity = 0.4;
         scene.add(gridHelper);
         
-        // أرضية شفافة لمحاكاة البلاط
         const groundPlane = new THREE.Mesh(
-            new THREE.PlaneGeometry(19, 19),
-            new THREE.MeshStandardMaterial({ color: 0x2c5e2a, roughness: 0.7, metalness: 0.1, transparent: true, opacity: 0.35 })
+            new THREE.PlaneGeometry(18.5, 18.5),
+            new THREE.MeshStandardMaterial({ color: 0x2c5e2a, roughness: 0.7, metalness: 0.1, transparent: true, opacity: 0.3 })
         );
         groundPlane.rotation.x = -Math.PI / 2;
         groundPlane.position.y = -1.1;
         groundPlane.receiveShadow = true;
         scene.add(groundPlane);
         
-        // حدود زخرفية (أعمدة خشبية)
+        // Decorative wooden borders
         const borderMat = new THREE.MeshStandardMaterial({ color: 0xb87c4f, roughness: 0.4 });
-        const borderSize = 9.5;
-        for (let i = -borderSize; i <= borderSize; i+=1.5) {
-            const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.8, 0.2), borderMat);
+        const borderSize = 9.2;
+        for (let i = -borderSize; i <= borderSize; i+=1.6) {
+            const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.8, 0.25), borderMat);
             pillar.position.set(i, -0.7, borderSize);
             pillar.castShadow = true;
             scene.add(pillar);
-            const pillar2 = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.8, 0.2), borderMat);
+            const pillar2 = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.8, 0.25), borderMat);
             pillar2.position.set(i, -0.7, -borderSize);
             pillar2.castShadow = true;
             scene.add(pillar2);
-            const pillar3 = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.8, 0.2), borderMat);
+            const pillar3 = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.8, 0.25), borderMat);
             pillar3.position.set(borderSize, -0.7, i);
             pillar3.castShadow = true;
             scene.add(pillar3);
-            const pillar4 = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.8, 0.2), borderMat);
+            const pillar4 = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.8, 0.25), borderMat);
             pillar4.position.set(-borderSize, -0.7, i);
             pillar4.castShadow = true;
             scene.add(pillar4);
         }
         
-        // ---------- إعدادات اللعبة (شبكة 15x15 لتناسب المنظر) ----------
+        // ---------- Game Configuration ----------
         const GRID_SIZE = 15;
-        const CELL_SIZE = 1.1;      // حجم الخلية المكانية
+        const CELL_SIZE = 1.12;
         const OFFSET = (GRID_SIZE-1) * CELL_SIZE / 2;
         
-        // تحويل إحداثيات الشبكة (x,z) إلى Vector3
         function gridToWorld(x, z) {
             return new THREE.Vector3(x * CELL_SIZE - OFFSET, 0, z * CELL_SIZE - OFFSET);
         }
         
-        // --- الثعبان (مجموعة كرات ثلاثية الأبعاد) ---
-        let snakeMeshes = [];    // قائمة mesh لكل جزء
-        let snakePositions = []; // {x, z} إحداثيات الشبكة
+        // Realistic snake body: each segment is a scaled sphere with smooth gradient
+        let snakeSegments = []; // Array of THREE.Mesh
+        let snakePositions = []; // {x, z} grid positions
         let direction = 'RIGHT';
         let nextDirection = 'RIGHT';
-        let foodPosition = { x: 7, z: 7 };
+        let foodPosition = { x: 10, z: 8 };
         let foodMesh = null;
         let score = 0;
         let gameRunning = true;
         
-        // نظام الجوع: الثعبان يموت إذا لم يأكل خلال مدة معينة
-        let hunger = 100;        // 100 = ممتلئ, 0 = يموت
-        let hungerDecayRate = 0.45; // كل تحديث (0.12 ثانية) ينقص بمقدار 0.45 -> ~ 26 ثانية للموت الكامل
-        let lastUpdateTime = 0;
+        // Hunger system
+        let hunger = 100;
+        const HUNGER_DECAY = 0.42; // per move (~140ms)
         let gameInterval = null;
+        const GAME_SPEED = 145; // ms (slower & smooth)
         
-        // سرعة أبطأ (130ms بدلاً من 100)
-        const GAME_SPEED_MS = 140;
-        
-        // تحديث شريط الجوع في واجهة HTML
-        const hungerFillDiv = document.getElementById('hungerFill');
+        // DOM elements
         const scoreSpan = document.getElementById('scoreValue');
         const statusDiv = document.getElementById('gameStatus');
+        const hungerFill = document.getElementById('hungerFill');
+        const hungerLabelSpan = document.getElementById('hungerLabel');
+        const scorePanelSpan = document.getElementById('scorePanel');
+        const resetBtn = document.getElementById('resetButton');
+        const langBtn = document.getElementById('langBtn');
         
-        function updateHungerUI() {
-            let percent = Math.max(0, (hunger / 100) * 100);
-            hungerFillDiv.style.width = `${percent}%`;
-            if (hunger < 30) {
-                hungerFillDiv.style.background = "linear-gradient(90deg, #e34d2c, #ff8c42)";
-            } else {
-                hungerFillDiv.style.background = "linear-gradient(90deg, #6fbf4c, #f5a623)";
+        // --- Language strings ---
+        let currentLang = 'en'; // 'en' or 'ar'
+        const strings = {
+            en: {
+                score: '🍎 Apples',
+                newGame: '🐍 New Game',
+                active: '✨ Active',
+                deadHunger: '💀 Died of Hunger',
+                deadCollision: '💀 Hit Itself',
+                win: '🏆 Victory! Full Ladder',
+                hungerLabel: 'Hunger: decays over time | Eat apples to refill',
+                resetConfirm: ''
+            },
+            ar: {
+                score: '🍎 التفاحات',
+                newGame: '🐍 سلم جديد',
+                active: '🌟 نشط',
+                deadHunger: '💀 مات من الجوع',
+                deadCollision: '💀 اصطدم بنفسه',
+                win: '🏆 فوز! ملأ السلم',
+                hungerLabel: 'الجوع: ينقص مع الوقت | أكل التفاح يعيد الشبع'
             }
+        };
+        
+        function updateLanguage() {
+            const t = strings[currentLang];
+            scorePanelSpan.innerHTML = `${t.score} <span id="scoreValue">${score}</span>`;
+            resetBtn.innerHTML = t.newGame;
+            if (gameRunning) statusDiv.innerText = t.active;
+            else if (statusDiv.innerText.includes('Hunger') || statusDiv.innerText.includes('جوع')) statusDiv.innerText = t.deadHunger;
+            else if (statusDiv.innerText.includes('Hit') || statusDiv.innerText.includes('اصطدم')) statusDiv.innerText = t.deadCollision;
+            else if (statusDiv.innerText.includes('Victory') || statusDiv.innerText.includes('فوز')) statusDiv.innerText = t.win;
+            hungerLabelSpan.innerText = t.hungerLabel;
+            // Force score span refresh
+            const scoreSpanElem = document.getElementById('scoreValue');
+            if (scoreSpanElem) scoreSpanElem.innerText = score;
         }
         
-        // إنشاء التفاحة (موديل تفاحة 3D)
+        langBtn.addEventListener('click', () => {
+            currentLang = currentLang === 'en' ? 'ar' : 'en';
+            updateLanguage();
+        });
+        
+        // Create realistic apple mesh
         function createAppleMesh(x, z) {
             const group = new THREE.Group();
-            // جسم التفاحة
-            const bodyGeo = new THREE.SphereGeometry(0.38, 24, 24);
-            const materialRed = new THREE.MeshStandardMaterial({ color: 0xe34234, roughness: 0.2, emissive: 0x441100 });
+            const bodyGeo = new THREE.SphereGeometry(0.42, 32, 32);
+            const materialRed = new THREE.MeshStandardMaterial({ color: 0xdc4c3a, roughness: 0.25, emissive: 0x331100 });
             const appleBody = new THREE.Mesh(bodyGeo, materialRed);
             appleBody.castShadow = true;
             group.add(appleBody);
-            // الساق
-            const stemGeo = new THREE.CylinderGeometry(0.07, 0.09, 0.2);
+            const stemGeo = new THREE.CylinderGeometry(0.08, 0.1, 0.22);
             const stemMat = new THREE.MeshStandardMaterial({ color: 0x8b5a2b });
             const stem = new THREE.Mesh(stemGeo, stemMat);
-            stem.position.set(0, 0.42, 0);
+            stem.position.set(0, 0.48, 0);
             group.add(stem);
-            // ورقة
-            const leafGeo = new THREE.BoxGeometry(0.2, 0.05, 0.1);
+            const leafGeo = new THREE.BoxGeometry(0.22, 0.06, 0.12);
             const leafMat = new THREE.MeshStandardMaterial({ color: 0x6aab35 });
             const leaf = new THREE.Mesh(leafGeo, leafMat);
-            leaf.position.set(0.18, 0.48, 0.05);
-            leaf.rotation.z = 0.7;
+            leaf.position.set(0.2, 0.52, 0.06);
+            leaf.rotation.z = 0.65;
             group.add(leaf);
-            
             const pos = gridToWorld(x, z);
             group.position.copy(pos);
-            group.position.y = 0.15;
+            group.position.y = 0.2;
             scene.add(group);
             return group;
         }
         
-        // إعادة إنشاء التفاحة في موقع عشوائي فارغ
+        // Create realistic snake segment with scales effect
+        function createSnakeSegment(color, isHead = false, index = 0) {
+            const geometry = new THREE.SphereGeometry(0.52, 36, 36);
+            const material = new THREE.MeshStandardMaterial({ color: color, roughness: 0.28, metalness: 0.15 });
+            const sphere = new THREE.Mesh(geometry, material);
+            sphere.castShadow = true;
+            sphere.receiveShadow = false;
+            if (isHead) {
+                // Add eyes and tongue for realism
+                const eyeMatWhite = new THREE.MeshStandardMaterial({ color: 0xffffff });
+                const eyeMatBlack = new THREE.MeshStandardMaterial({ color: 0x000000 });
+                const leftEye = new THREE.Mesh(new THREE.SphereGeometry(0.12, 24, 24), eyeMatWhite);
+                const rightEye = new THREE.Mesh(new THREE.SphereGeometry(0.12, 24, 24), eyeMatWhite);
+                leftEye.position.set(-0.28, 0.28, 0.55);
+                rightEye.position.set(0.28, 0.28, 0.55);
+                sphere.add(leftEye);
+                sphere.add(rightEye);
+                const leftPupil = new THREE.Mesh(new THREE.SphereGeometry(0.07, 24, 24), eyeMatBlack);
+                const rightPupil = new THREE.Mesh(new THREE.SphereGeometry(0.07, 24, 24), eyeMatBlack);
+                leftPupil.position.set(-0.28, 0.24, 0.64);
+                rightPupil.position.set(0.28, 0.24, 0.64);
+                sphere.add(leftPupil);
+                sphere.add(rightPupil);
+                // tiny tongue
+                const tongueMat = new THREE.MeshStandardMaterial({ color: 0xdd5544 });
+                const tongue = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.2, 6), tongueMat);
+                tongue.position.set(0, 0.1, 0.72);
+                tongue.rotation.x = 0.3;
+                sphere.add(tongue);
+            } else {
+                // add little bumps for scales effect
+                const bumpMat = new THREE.MeshStandardMaterial({ color: 0x3f8a2a });
+                for (let i = -1; i <= 1; i++) {
+                    const bump = new THREE.Mesh(new THREE.SphereGeometry(0.09, 8, 8), bumpMat);
+                    bump.position.set(i * 0.35, 0.2, 0.52);
+                    sphere.add(bump);
+                    const bump2 = new THREE.Mesh(new THREE.SphereGeometry(0.09, 8, 8), bumpMat);
+                    bump2.position.set(i * 0.35, -0.25, 0.52);
+                    sphere.add(bump2);
+                }
+            }
+            return sphere;
+        }
+        
+        function rebuildSnakeVisuals() {
+            // remove old
+            snakeSegments.forEach(seg => scene.remove(seg));
+            snakeSegments = [];
+            for (let i = 0; i < snakePositions.length; i++) {
+                const pos = snakePositions[i];
+                const worldPos = gridToWorld(pos.x, pos.z);
+                let color;
+                if (i === 0) color = 0x7ec850;
+                else {
+                    const t = i / snakePositions.length;
+                    color = 0x5ca832;
+                }
+                const isHead = (i === 0);
+                const segment = createSnakeSegment(color, isHead, i);
+                segment.position.copy(worldPos);
+                segment.position.y = 0.23;
+                scene.add(segment);
+                snakeSegments.push(segment);
+            }
+        }
+        
         function respawnFood() {
             if (!gameRunning) return;
             const occupied = new Set(snakePositions.map(p => `${p.x},${p.z}`));
@@ -305,70 +404,27 @@
                 gameWin();
                 return;
             }
-            let freeCells = [];
+            let free = [];
             for (let i = 0; i < GRID_SIZE; i++) {
                 for (let j = 0; j < GRID_SIZE; j++) {
-                    if (!occupied.has(`${i},${j}`)) freeCells.push({ x: i, z: j });
+                    if (!occupied.has(`${i},${j}`)) free.push({ x: i, z: j });
                 }
             }
-            if (freeCells.length === 0) {
-                gameWin();
-                return;
-            }
-            const rand = Math.floor(Math.random() * freeCells.length);
-            const newPos = freeCells[rand];
-            foodPosition = newPos;
+            if (free.length === 0) { gameWin(); return; }
+            const rand = Math.floor(Math.random() * free.length);
+            foodPosition = free[rand];
             if (foodMesh) scene.remove(foodMesh);
             foodMesh = createAppleMesh(foodPosition.x, foodPosition.z);
         }
         
-        // إنشاء الثعبان (أجزاء كروية)
-        function rebuildSnakeVisuals() {
-            // إزالة القديم
-            snakeMeshes.forEach(mesh => scene.remove(mesh));
-            snakeMeshes = [];
-            for (let i = 0; i < snakePositions.length; i++) {
-                const seg = snakePositions[i];
-                const pos = gridToWorld(seg.x, seg.z);
-                const sphereGeo = new THREE.SphereGeometry(0.48, 32, 32);
-                let color;
-                if (i === 0) color = 0x7ec850;
-                else color = 0x4fa639;
-                const material = new THREE.MeshStandardMaterial({ color: color, roughness: 0.3, metalness: 0.1 });
-                const sphere = new THREE.Mesh(sphereGeo, material);
-                sphere.position.copy(pos);
-                sphere.position.y = 0.2;
-                sphere.castShadow = true;
-                sphere.receiveShadow = false;
-                scene.add(sphere);
-                snakeMeshes.push(sphere);
-                // عيون الرأس
-                if (i === 0) {
-                    const eyeMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
-                    const leftEye = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), eyeMat);
-                    const rightEye = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), eyeMat);
-                    leftEye.position.set(-0.25, 0.25, 0.48);
-                    rightEye.position.set(0.25, 0.25, 0.48);
-                    sphere.add(leftEye);
-                    sphere.add(rightEye);
-                    const pupilMat = new THREE.MeshStandardMaterial({ color: 0x000000 });
-                    const leftPupil = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), pupilMat);
-                    const rightPupil = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), pupilMat);
-                    leftPupil.position.set(-0.25, 0.2, 0.55);
-                    rightPupil.position.set(0.25, 0.2, 0.55);
-                    sphere.add(leftPupil);
-                    sphere.add(rightPupil);
-                }
-            }
-        }
-        
-        // إنهاء اللعبة (موت جوع أو اصطدام ذاتي - لكن اصطدام ذاتي مطلوب)
-        function gameOver(reason = 'جوع') {
+        function gameOver(reason) {
             if (!gameRunning) return;
             gameRunning = false;
             if (gameInterval) clearInterval(gameInterval);
             gameInterval = null;
-            statusDiv.innerText = `💀 مات من ${reason} 💀`;
+            const t = strings[currentLang];
+            if (reason === 'hunger') statusDiv.innerText = t.deadHunger;
+            else statusDiv.innerText = t.deadCollision;
             statusDiv.style.background = "rgba(100,30,10,0.9)";
         }
         
@@ -377,23 +433,26 @@
             gameRunning = false;
             if (gameInterval) clearInterval(gameInterval);
             gameInterval = null;
-            statusDiv.innerText = '🏆 فوز! ملأ السلم 🏆';
+            const t = strings[currentLang];
+            statusDiv.innerText = t.win;
             statusDiv.style.background = "rgba(180,130,30,0.9)";
         }
         
-        // الحركة الرئيسية
         function moveSnake() {
             if (!gameRunning) return;
             
-            // خفض الجوع أولاً
-            hunger -= hungerDecayRate;
-            updateHungerUI();
+            // Hunger decay
+            hunger -= HUNGER_DECAY;
+            const hungerPercent = Math.max(0, (hunger / 100) * 100);
+            hungerFill.style.width = `${hungerPercent}%`;
             if (hunger <= 0) {
-                gameOver("الجوع");
+                gameOver('hunger');
                 return;
             }
+            if (hunger < 30) hungerFill.style.background = "linear-gradient(90deg, #e34d2c, #ff8c42)";
+            else hungerFill.style.background = "linear-gradient(90deg, #6fbf4c, #f5a623)";
             
-            // تحديث الاتجاه (يمنع الرجوع)
+            // direction handling
             let newDir = nextDirection;
             if ((newDir === 'RIGHT' && direction === 'LEFT') ||
                 (newDir === 'LEFT' && direction === 'RIGHT') ||
@@ -412,7 +471,7 @@
                 case 'DOWN': newHead.z += 1; break;
             }
             
-            // ** اختراق الجدران **
+            // WALL CLIPPING (wrap around)
             if (newHead.x < 0) newHead.x = GRID_SIZE - 1;
             if (newHead.x >= GRID_SIZE) newHead.x = 0;
             if (newHead.z < 0) newHead.z = GRID_SIZE - 1;
@@ -420,97 +479,85 @@
             
             const willEat = (newHead.x === foodPosition.x && newHead.z === foodPosition.z);
             
-            // تنفيذ الحركة
             snakePositions.unshift(newHead);
             if (!willEat) {
                 snakePositions.pop();
             } else {
-                // أكل التفاحة: زيادة النتيجة و تجديد الجوع بالكامل وزيادة التفاح
                 score++;
                 scoreSpan.innerText = score;
+                // update language-aware score panel
+                const t = strings[currentLang];
+                scorePanelSpan.innerHTML = `${t.score} <span id="scoreValue">${score}</span>`;
                 hunger = 100;
-                updateHungerUI();
+                hungerFill.style.width = `100%`;
                 respawnFood();
-                // لا نزيل الجزء الخلفي في حالة الأكل -> يزيد الطول
             }
             
-            // التحقق من الاصطدام بالذات (بعد الحركة)
+            // self-collision check
             const headPos = snakePositions[0];
             for (let i = 1; i < snakePositions.length; i++) {
                 if (snakePositions[i].x === headPos.x && snakePositions[i].z === headPos.z) {
-                    gameOver("الاصطدام بنفسه");
+                    gameOver('collision');
                     return;
                 }
             }
             
-            // إعادة رسم المجسمات
             rebuildSnakeVisuals();
-            // إضافة تأثير بسيط للكاميرا
-            updateCameraAngle();
         }
         
-        // حركة كاميرا خفيفة ديناميكية
-        let timeOffset = 0;
-        function updateCameraAngle() {
-            // حركة بسيطة خفيفة حسب اتجاه الثعبان لإحساس 3D
-            if (!gameRunning) return;
-            const targetX = 16 + Math.sin(Date.now() * 0.002) * 0.5;
-            const targetZ = 14 + Math.cos(Date.now() * 0.0015) * 0.4;
-            camera.position.x += (targetX - camera.position.x) * 0.03;
-            camera.position.z += (targetZ - camera.position.z) * 0.03;
-            camera.lookAt(0, 0, 0);
-        }
-        
-        // إعادة ضبط اللعبة
         function resetGame() {
             if (gameInterval) clearInterval(gameInterval);
-            // إزالة المجسمات القديمة
-            snakeMeshes.forEach(m => scene.remove(m));
+            snakeSegments.forEach(seg => scene.remove(seg));
             if (foodMesh) scene.remove(foodMesh);
-            snakeMeshes = [];
-            // إعداد الثعبان الأولي
+            // init snake
             snakePositions = [
                 { x: 7, z: 7 },
                 { x: 6, z: 7 },
                 { x: 5, z: 7 },
-                { x: 4, z: 7 }
+                { x: 4, z: 7 },
+                { x: 3, z: 7 }
             ];
             direction = 'RIGHT';
             nextDirection = 'RIGHT';
             score = 0;
             scoreSpan.innerText = "0";
             hunger = 100;
-            updateHungerUI();
+            hungerFill.style.width = "100%";
             gameRunning = true;
-            statusDiv.innerText = "🌟 نشط";
-            statusDiv.style.background = "rgba(0,0,0,0.7)";
+            const t = strings[currentLang];
+            statusDiv.innerText = t.active;
+            statusDiv.style.background = "rgba(0,0,0,0.75)";
+            scorePanelSpan.innerHTML = `${t.score} <span id="scoreValue">0</span>`;
             
-            // توليد تفاحة بعيدة
+            // random food away from snake
             const occupiedSet = new Set(snakePositions.map(p => `${p.x},${p.z}`));
-            let free = [];
-            for (let i=0; i<GRID_SIZE; i++)
-                for(let j=0; j<GRID_SIZE; j++)
-                    if(!occupiedSet.has(`${i},${j}`)) free.push({x:i, z:j});
-            if(free.length) foodPosition = free[Math.floor(Math.random() * free.length)];
-            else foodPosition = {x:10, z:10};
-            
+            let freeCells = [];
+            for (let i = 0; i < GRID_SIZE; i++) {
+                for (let j = 0; j < GRID_SIZE; j++) {
+                    if (!occupiedSet.has(`${i},${j}`)) freeCells.push({ x: i, z: j });
+                }
+            }
+            if (freeCells.length) foodPosition = freeCells[Math.floor(Math.random() * freeCells.length)];
+            else foodPosition = { x: 10, z: 10 };
             if (foodMesh) scene.remove(foodMesh);
             foodMesh = createAppleMesh(foodPosition.x, foodPosition.z);
             rebuildSnakeVisuals();
             
             gameInterval = setInterval(() => {
                 moveSnake();
-                if (!gameRunning) {
-                    // لا تفعل شيء إضافي
+                if (!gameRunning && gameInterval) {
+                    // nothing extra
                 }
-            }, GAME_SPEED_MS);
+            }, GAME_SPEED);
         }
         
-        // التحكم بالأسهم
+        // Keyboard controls
         window.addEventListener('keydown', (e) => {
             if (!gameRunning) return;
             const key = e.key;
-            e.preventDefault();
+            if (key === 'ArrowUp' || key === 'ArrowDown' || key === 'ArrowLeft' || key === 'ArrowRight') {
+                e.preventDefault();
+            }
             switch(key) {
                 case 'ArrowUp': nextDirection = 'UP'; break;
                 case 'ArrowDown': nextDirection = 'DOWN'; break;
@@ -520,71 +567,49 @@
             }
         });
         
-        // منع تمرير الصفحة بالأسهم
-        window.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-                e.preventDefault();
-            }
-        });
+        resetBtn.addEventListener('click', () => resetGame());
         
-        document.getElementById('resetButton').addEventListener('click', () => {
-            resetGame();
-        });
-        
-        // إضافة مؤثرات زخرفية (جزيئات خفيفة)
+        // Star particle effect for ambiance
         const starField = new THREE.Points(
             new THREE.BufferGeometry(),
-            new THREE.PointsMaterial({ color: 0xffdd99, size: 0.08 })
+            new THREE.PointsMaterial({ color: 0xffdd99, size: 0.07 })
         );
-        const starCount = 600;
-        const starPositions = new Float32Array(starCount * 3);
+        const starCount = 800;
+        const starPositionsArr = new Float32Array(starCount * 3);
         for (let i = 0; i < starCount; i++) {
-            starPositions[i*3] = (Math.random() - 0.5) * 200;
-            starPositions[i*3+1] = (Math.random() - 0.5) * 40 + 8;
-            starPositions[i*3+2] = (Math.random() - 0.5) * 120 - 50;
+            starPositionsArr[i*3] = (Math.random() - 0.5) * 200;
+            starPositionsArr[i*3+1] = (Math.random() - 0.5) * 35 + 6;
+            starPositionsArr[i*3+2] = (Math.random() - 0.5) * 120 - 50;
         }
-        starField.geometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+        starField.geometry.setAttribute('position', new THREE.BufferAttribute(starPositionsArr, 3));
         scene.add(starField);
         
-        // حلقة التصيير
+        // Animation loop & floating apple effect
         function animate() {
             requestAnimationFrame(animate);
-            // تحديث حركة عائمة للتفاحة
             if (foodMesh && gameRunning) {
-                foodMesh.position.y = 0.15 + Math.sin(Date.now() * 0.008) * 0.05;
+                foodMesh.position.y = 0.2 + Math.sin(Date.now() * 0.007) * 0.07;
             }
-            // تحريك الكاميرا برفق حول المشهد (لمسة سينمائية)
-            if (gameRunning) {
-                // دوران خفيف جداً للكاميرا حول المحور Y للحصول على إحساس 3D رائع
-                const angle = Date.now() * 0.0005;
-                // لكن نحافظ على زاوية مائلة، فقط لمسة ديناميكية
-                const offsetX = Math.sin(angle) * 1.2;
-                const offsetZ = Math.cos(angle * 0.7) * 0.8;
-                camera.position.x += (16 + offsetX - camera.position.x) * 0.02;
-                camera.position.z += (14 + offsetZ - camera.position.z) * 0.02;
-                camera.lookAt(0, 0.5, 0);
-            } else {
-                // عند الموت نثبت الكاميرا قليلاً
-                camera.lookAt(0, 0, 0);
+            // subtle idle sway for snake head (realism)
+            if (gameRunning && snakeSegments.length > 0) {
+                const headMesh = snakeSegments[0];
+                if (headMesh) {
+                    headMesh.position.y = 0.23 + Math.sin(Date.now() * 0.012) * 0.008;
+                }
             }
             renderer.render(scene, camera);
-            labelRenderer.render(scene, camera);
         }
-        
         animate();
         resetGame();
         
-        // استجابة لحجم الشاشة
-        window.addEventListener('resize', onWindowResize, false);
-        function onWindowResize() {
+        window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
-            labelRenderer.setSize(window.innerWidth, window.innerHeight);
-        }
+        });
         
-        // تلميحات للمستخدم
-        console.log('اللعبة 3D تعمل | اختراق الجدران | الجوع يقتل إذا لم تأكل التفاح');
+        // initial language sync
+        updateLanguage();
     </script>
 </body>
 </html>
