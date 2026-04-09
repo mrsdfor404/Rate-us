@@ -1,1728 +1,526 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>MR Store</title>
-<style>
-:root{--bg:#0b0f1a;--card:#111726;--accent:#4da3ff;--gold:#ffd700;--note:#ffcc00;--muted:#99a3b3;--success:#00d4aa;--error:#ff4444;--warning:#ff9800}
-body{margin:0;font-family:"Tajawal",sans-serif;background:var(--bg);color:#fff}
-header{background:var(--card);padding:18px;text-align:center;font-size:22px;color:var(--accent);font-weight:700;position:relative;display:flex;justify-content:space-between;align-items:center}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>سلم التفاحة 🍎 | لعبة الأفعى الكلاسيكية</title>
+    <style>
+        * {
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-/* زر التسجيل في الهيدر */
-#headerAuthBtn{background:linear-gradient(180deg,#0ff3d0,#00b2ff);color:#051020;border-radius:10px;padding:10px 16px;font-weight:800;cursor:pointer;border:none;margin-left:10px}
-#headerAuthBtn:hover{transform:translateY(-2px)}
+        body {
+            background: linear-gradient(145deg, #1a472a 0%, #0e2a1a 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', 'Tahoma', 'Cairo', system-ui, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
 
-/* قائمة المستخدم في الهيدر */
-#headerUserMenu{display:flex;gap:8px;align-items:center}
-#headerUserAvatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#ffd700,#ffb84d);display:flex;align-items:center;justify-content:center;color:#081220;font-weight:900;cursor:pointer;overflow:hidden;object-fit:cover}
-#headerUserAvatarFallback{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#ffd700,#ffb84d);display:flex;align-items:center;justify-content:center;color:#081220;font-weight:900;cursor:pointer}
-#headerUserName{background:rgba(255,255,255,0.03);padding:8px 10px;border-radius:10px;color:var(--accent);font-weight:800;cursor:pointer}
+        .game-container {
+            background: #2b5e2f;
+            padding: 20px 25px 25px 25px;
+            border-radius: 70px 70px 50px 50px;
+            box-shadow: 0 25px 35px rgba(0,0,0,0.4), inset 0 1px 4px rgba(255,255,200,0.6);
+        }
 
-nav{background:#131a2c;display:flex;justify-content:center;gap:8px;padding:8px;flex-wrap:wrap}
-nav a{color:var(--accent);text-decoration:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:700}
-nav a:hover{background:#0f1724}
-nav a.active{background:var(--accent);color:#081220}
+        canvas {
+            display: block;
+            margin: 0 auto;
+            border-radius: 24px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            background-color: #fef7e0;
+            cursor: pointer;
+        }
 
-.container{max-width:820px;margin:22px auto;background:var(--card);padding:20px;border-radius:12px;border:1px solid #4da3ff33;box-sizing:border-box}
+        .info-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-top: 18px;
+            background: #f9eec1;
+            padding: 12px 25px;
+            border-radius: 60px;
+            box-shadow: inset 0 1px 5px rgba(98, 49, 10, 0.2), 0 5px 10px rgba(0,0,0,0.2);
+        }
 
-label{display:block;margin-top:12px;font-weight:700;text-align:right}
+        .score-box {
+            background: #2c2e1e;
+            color: #fdd67a;
+            padding: 6px 20px;
+            border-radius: 40px;
+            font-weight: bold;
+            font-size: 1.6rem;
+            font-family: monospace;
+            letter-spacing: 2px;
+            box-shadow: inset 0 0 5px #ffdd99, 0 3px 0 #3a2a0a;
+        }
 
-select,input,textarea{
-  width:100%;
-  padding:10px;
-  margin-top:6px;
-  border-radius:12px;
-  border:none;
-  background:#0f1724;
-  color:#fff;
-  box-sizing:border-box;
-  outline:none;
-  box-shadow:0 0 12px rgba(0,255,200,0.55);
-  transition:0.25s;
-}
+        .score-label {
+            font-weight: bold;
+            color: #4a2a12;
+            font-size: 1.1rem;
+            background: #ffecb3;
+            padding: 5px 12px;
+            border-radius: 30px;
+        }
 
-select:focus,input:focus,textarea:focus{
-  box-shadow:0 0 18px rgba(0,255,200,0.85);
-}
+        .restart-btn {
+            background: #ff914d;
+            border: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            padding: 6px 18px;
+            border-radius: 40px;
+            color: #2d1b0a;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            font-family: inherit;
+            box-shadow: 0 4px 0 #b1451a;
+        }
 
-select[multiple]{height:150px}
+        .restart-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #b1451a;
+        }
 
-.row{display:flex;gap:12px;align-items:center}
-.small{width:48%}
+        .status {
+            background: #3c280e;
+            padding: 5px 14px;
+            border-radius: 50px;
+            color: #ffe0a3;
+            font-weight: bold;
+            font-size: 1rem;
+        }
 
-button{
-  padding:12px;
-  background:var(--accent);
-  color:#081220;
-  border:none;
-  border-radius:10px;
-  font-weight:800;
-  cursor:pointer;
-  margin-top:12px;
-  transition:0.2s;
-}
+        .controls-tip {
+            margin-top: 12px;
+            text-align: center;
+            font-size: 0.85rem;
+            background: #d9c48b80;
+            backdrop-filter: blur(4px);
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 5px 15px;
+            border-radius: 60px;
+            color: #1f2f0a;
+            font-weight: bold;
+        }
 
-button:hover{transform:scale(1.02)}
-button.full-width{width:100%}
-
-.discount-btn{
-  background:#00d4aa;
-  color:#000;
-  font-weight:900;
-  border-radius:10px;
-  padding:10px;
-}
-
-.discount-btn.used{
-  background:#444;
-  color:#999;
-  cursor:default;
-}
-
-.total{color:var(--gold);font-weight:900;margin-top:8px}
-
-.note{
-  background:#0e1724;
-  padding:10px;
-  border-radius:8px;
-  color:var(--note);
-  text-align:center;
-  margin-top:12px
-}
-
-.footer{padding:16px;text-align:center;color:#bbb;margin-top:18px}
-
-/* success popup */
-.success-popup{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.6);
-  z-index:9999;
-  justify-content:center;
-  align-items:center
-}
-
-.popup-card{
-  background:var(--card);
-  padding:22px;
-  border-radius:14px;
-  text-align:center;
-  border:1px solid #4da3ff33;
-  max-width:420px
-}
-
-.crown{
-  font-size:56px;
-  color:var(--gold);
-  text-shadow:0 0 14px #ffec99;
-  margin-bottom:6px
-}
-
-.popup-card h2{
-  color:#00ffcc;
-  margin:8px 0
-}
-
-/* auth modal */
-.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(1,6,12,0.6);z-index:10001;justify-content:center;align-items:center}
-.modal{background:var(--card);padding:18px;border-radius:12px;width:360px;max-width:92%;border:1px solid #4da3ff33}
-.modal h3{margin:0 0 12px;color:#00ffcc}
-.form-row{margin-bottom:8px;text-align:right}
-.small-note{font-size:13px;color:var(--muted);margin-top:6px}
-
-/* dropdown menu */
-.user-dropdown{display:none;position:absolute;top:60px;right:14px;background:var(--card);border:1px solid #4da3ff33;padding:8px;border-radius:10px;min-width:160px;box-shadow:0 8px 30px rgba(0,0,0,0.6);z-index:10000}
-.user-dropdown button{width:100%;text-align:right;padding:8px;background:transparent;color:#fff;border:none;cursor:pointer;border-radius:8px}
-.user-dropdown button:hover{background:#0f1724}
-
-/* profile page */
-#profilePanel{display:none;position:fixed;inset:0;background:rgba(2,6,12,0.97);z-index:10002;padding:18px;overflow:auto;border:none}
-.profile-header{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:20px}
-.profile-box{background:var(--card);padding:15px;border-radius:10px;border:1px solid #4da3ff33;margin-top:12px}
-.order-item{background:#0e1724;padding:10px;border-radius:8px;margin-top:8px;border:1px solid rgba(255,255,255,0.03)}
-
-/* زر الرجوع في الملف الشخصي */
-.back-btn{background:transparent;color:var(--accent);border:1px solid var(--accent);padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:700;display:flex;align-items:center;gap:8px}
-.back-btn:hover{background:rgba(77,163,255,0.1)}
-
-/* زر تحميل الصورة */
-.upload-btn{background:#ffd700;color:#000;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:700;display:inline-flex;align-items:center;gap:8px}
-.upload-btn:hover{background:#ffcc00}
-
-/* زر إعادة الطلب */
-.repeat-order-btn{background:#ffd700;color:#000;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-weight:700;font-size:12px}
-.repeat-order-btn:hover{background:#ffcc00}
-
-/* custom alerts */
-.custom-alert{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:15px 20px;border-radius:10px;z-index:100000;box-shadow:0 5px 20px rgba(0,0,0,0.3);display:flex;align-items:center;gap:12px;min-width:300px;max-width:90%;animation:slideDown 0.3s ease;border:1px solid rgba(255,255,255,0.1);font-weight:700}
-.alert-success{background:#00d4aa;color:white}
-.alert-error{background:#ff4444;color:white}
-.alert-info{background:#4da3ff;color:white}
-.alert-warning{background:#ffd700;color:black}
-
-@keyframes slideDown{
-  from{top:-100px;opacity:0}
-  to{top:20px;opacity:1}
-}
-
-/* quick order history */
-.quick-history{display:none;background:#131a2c;border-radius:10px;padding:15px;margin-top:15px;border:1px solid #4da3ff33}
-.history-item{background:#0e1724;padding:10px;border-radius:8px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
-.history-details{flex:1;margin-right:10px}
-
-/* loading */
-.loading{display:none;text-align:center;padding:20px}
-.spinner{width:40px;height:40px;border:4px solid var(--accent);border-top:4px solid transparent;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto}
-
-@keyframes spin{
-  0%{transform:rotate(0deg)}
-  100%{transform:rotate(360deg)}
-}
-
-/* صورة الملف الشخصي الكبيرة */
-.profile-avatar-large{width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,#ffd700,#ffb84d);display:flex;align-items:center;justify-content:center;color:#081220;font-weight:900;font-size:32px;overflow:hidden;object-fit:cover;cursor:pointer;border:3px solid var(--accent)}
-
-/* input file مخفي */
-.file-input{display:none}
-
-/* responsive */
-@media(max-width:520px){
-  .row{flex-direction:column}
-  .small{width:100%}
-  #headerUserName{display:none}
-  header{padding:12px}
-  .profile-avatar-large{width:80px;height:80px;font-size:28px}
-  .modal{width:92%}
-}
-</style>
-
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js"></script>
+        @media (max-width: 550px) {
+            .game-container {
+                padding: 15px 18px 20px 18px;
+            }
+            .score-box {
+                font-size: 1.2rem;
+                padding: 4px 14px;
+            }
+            .restart-btn {
+                font-size: 1rem;
+                padding: 4px 14px;
+            }
+        }
+    </style>
 </head>
 <body>
-
-<header>
-  <div>MR Store</div>
-  <div>
-    <!-- زر التسجيل في الهيدر -->
-    <button id="headerAuthBtn" onclick="openAuth()">تسجيل الدخول</button>
-    
-    <!-- قائمة المستخدم في الهيدر -->
-    <div id="headerUserMenu" style="display:none">
-      <img id="headerUserAvatar" src="" alt="صورة الملف" style="display:none">
-      <div id="headerUserAvatarFallback">A</div>
-      <div id="headerUserName" onclick="toggleHeaderDropdown()">اسمك</div>
-      <div id="headerDropdown" class="user-dropdown">
-        <button onclick="openProfile()">👤 الملف الشخصي</button>
-        <button onclick="openChangePassword()">🔐 تغيير كلمة السر</button>
-        <button onclick="logout()">🚪 تسجيل الخروج</button>
-      </div>
-    </div>
-  </div>
-</header>
-
-<nav>
-  <a id="navProducts" class="active" onclick="showProducts()">🛍️ المنتجات</a>
-  <a id="navPayment" onclick="showPayment()">💳 طرق الدفع</a>
-  <a id="navCards" onclick="showCards()">🎮 بطاقات</a>
-</nav>
-
-<!-- ===================== المنتجات ===================== -->
-<div class="container" id="productsSection">
-  <!-- تاريخ الطلبات السريع -->
-  <div class="quick-history" id="quickHistory">
-    <h4 style="color:#ffd700;margin-top:0">🔄 الطلبات الأخيرة</h4>
-    <div id="quickHistoryList"></div>
-  </div>
-  
-  <form id="orderForm" onsubmit="return false">
-    
-    <label for="category">📁 اختر القسم:</label>
-    <select id="category" onchange="updateCategory()" required>
-      <option value="">-- اختر --</option>
-      <option value="games">GAMES</option>
-      <option value="psn">PSN CARDS</option>
-    </select>
-
-    <!-- قسم GAMES -->
-    <div id="gamesSection" style="display:none;margin-top:12px">
-      <label for="game">🎮 اختيار اللعبة:</label>
-      <select id="game" onchange="updateGameOptions()">
-        <option value="">-- اختر اللعبة --</option>
-        <option value="pubg">PUBG Mobile</option>
-        <option value="freefire">Free Fire</option>
-        <option value="deltaforce">Delta Force Mobile</option>
-        <option value="roblox">Roblox (USA)</option>
-        <option value="newstate">PUBG New State</option>
-      </select>
-
-      <div id="gameAmountSection" style="display:none;margin-top:8px">
-        <label>📦 اختر الباقات (حتى 3 باقات):</label>
-        <select id="gameAmount" multiple onchange="handleSelectionLimit('game')"></select>
-
-        <button type="button" id="gameDiscountBtn" class="discount-btn" onclick="applyDiscount('game')">
-          💰 تفعيل خصم 1.5%
-        </button>
-
-        <div id="gameTotal" class="total">المبلغ الإجمالي: 0.00 د.أ</div>
-      </div>
-    </div>
-
-    <!-- قسم PSN -->
-    <div id="psnSection" style="display:none;margin-top:12px">
-      <label for="psnType">🎴 اختر نوع PSN:</label>
-      <select id="psnType" onchange="updatePSNOptions()">
-        <option value="">-- اختر --</option>
-        <option value="usa">PSN USA</option>
-        <option value="sa">PSN SA</option>
-      </select>
-
-      <div id="psnAmountSection" style="display:none;margin-top:8px">
-        <label>📦 اختر الباقات (حتى 3 باقات):</label>
-        <select id="psnAmount" multiple onchange="handleSelectionLimit('psn')"></select>
-
-        <div class="row" style="margin-top:8px">
-          <div class="small">
-            <label>💰 تفعيل خصم PSN (1.5%)</label>
-            <button type="button" id="psnDiscountBtn" class="discount-btn" onclick="applyDiscount('psn')">
-              تفعيل خصم 1.5%
-            </button>
-          </div>
-
-          <div class="small">
-            <label>📨 طريقة الاستلام</label>
-            <select id="psnDelivery">
-              <option value="direct">شحن مباشر للحساب</option>
-              <option value="code">استلام كود</option>
-            </select>
-          </div>
+<div>
+    <div class="game-container">
+        <canvas id="gameCanvas" width="500" height="500"></canvas>
+        <div class="info-panel">
+            <span class="score-label">🍎 التفاحات</span>
+            <span class="score-box" id="scoreValue">0</span>
+            <button class="restart-btn" id="resetButton">🐍 سلم جديد</button>
+            <span class="status" id="gameStatus">🎮 العب</span>
         </div>
-
-        <div id="psnTotal" class="total">المبلغ الإجمالي: 0.00 د.أ</div>
-      </div>
+        <div class="controls-tip">
+            ⬆️ ⬇️ ⬅️ ➡️  الأسهم للتحكم | كل تفاحة تطوّلك 🍎
+        </div>
     </div>
-
-    <!-- التفاصيل -->
-    <div id="detailsSection" style="display:none;margin-top:14px">
-      <label>👤 اسم المستخدم / ID:</label>
-      <input id="username" placeholder="مثال: player123" required>
-
-      <label>📱 إنستغرام:</label>
-      <input id="insta" placeholder="@username" required>
-
-      <label>📧 البريد الإلكتروني:</label>
-      <input id="email" type="email" placeholder="example@mail.com" required>
-
-      <label>📝 ملاحظات إضافية:</label>
-      <textarea id="notes" placeholder="سيتم التواصل معك عبر GMAIL في حال لم تضف الinsta"></textarea>
-
-      <button type="button" id="sendBtn" onclick="sendOrder()" class="full-width">✅ تأكيد الطلب</button>
-      
-      <!-- زر إعادة الطلب الأخير -->
-      <button type="button" id="repeatLastBtn" onclick="repeatLastOrder()" class="full-width" style="background:#ffd700;color:#000;display:none;margin-top:10px">
-        🔄 إعادة طلب آخر طلبية
-      </button>
-
-      <div class="note" style="margin-top:12px">
-        📨 استقبال الطلبات: <b>asdm86411@gmail.com</b>
-      </div>
-    </div>
-
-  </form>
 </div>
-
-<!-- ===================== طرق الدفع ===================== -->
-<div class="container" id="paymentSection" style="display:none">
-  <h3 style="color:var(--gold);margin:0 0 8px">💳 طرق الدفع</h3>
-  <p style="line-height:1.6;font-size:18px">
-    • U Wallet<br>
-    • Zain Cash<br>
-    • Orange Money<br>
-    • Click
-  </p>
-
-  <p style="margin-top:20px">
-    الاسم المستعار:
-    <b id="aliasName" style="color:var(--gold);font-size:20px">MRSDFOR</b>
-  </p>
-
-  <button type="button" onclick="copyAlias()" class="full-width">📋 نسخ الاسم</button>
-
-  <div class="note" style="margin-top:12px">
-    📞 دعم: <b style="color:#fff">elzw520@gmail.com</b>
-  </div>
-
-  <div class="note" style="margin-top:14px;background:#162033;color:#ffd700;padding:14px">
-    في حال دعم التحويل عبر الاسم المستعار يرجى التحويل للاسم،  
-    وفي حال عدم دعمه يرجى وضع رقم واتساب داخل الملاحظات وأن يكون متوفر للتواصل  
-    أو حساب Instagram. شكرًا 🤍🤍
-  </div>
-</div>
-
-<!-- ===================== البطاقات ===================== -->
-<div class="container" id="cardsSection" style="display:none">
-  <h3 style="color:#00ffcc;text-align:center;margin:0 0 12px">🎮 البطاقات</h3>
-  <p style="text-align:center;font-size:18px;color:#ffd700">
-    سيتم توفير هذا الخيار قريباً ⭐
-  </p>
-</div>
-
-<!-- profile panel -->
-<div id="profilePanel">
-  <div class="profile-header">
-    <div style="display:flex;gap:12px;align-items:center">
-      <button class="back-btn" onclick="closeProfile()">
-        ← الرجوع
-      </button>
-    </div>
-    <div>
-      <button onclick="closeProfile()" style="width:auto;padding:8px 12px;background:#4da3ff;color:#fff;border-radius:10px;border:none;cursor:pointer">إغلاق</button>
-    </div>
-  </div>
-
-  <div style="text-align:center;margin-bottom:20px">
-    <!-- صورة الملف الشخصي الكبيرة -->
-    <img id="profileAvatarLarge" class="profile-avatar-large" src="" alt="صورة الملف" style="display:none;margin:0 auto">
-    <div id="profileAvatarFallback" class="profile-avatar-large" style="margin:0 auto">A</div>
-    
-    <!-- زر تحميل صورة -->
-    <input type="file" id="profileImageInput" class="file-input" accept="image/*">
-    <button class="upload-btn" onclick="document.getElementById('profileImageInput').click()" style="margin-top:10px">
-      📷 تغيير الصورة
-    </button>
-    <button class="upload-btn" onclick="removeProfileImage()" style="margin-top:10px;background:#ff4444;color:white">
-      🗑️ حذف الصورة
-    </button>
-  </div>
-
-  <div class="profile-box">
-    <h4>👤 معلومات المستخدم</h4>
-    <div id="profileName" style="font-size:20px;font-weight:900;color:var(--accent);margin-bottom:5px">اسم المستخدم</div>
-    <div id="profileInsta" style="color:var(--muted);font-size:14px;margin-bottom:5px">@insta</div>
-    <div id="profileEmail" style="color:var(--muted);font-size:14px">email@example.com</div>
-    <div id="profileMemberSince" style="color:var(--muted);font-size:14px;margin-top:5px">عضو منذ: 2025-01-01</div>
-  </div>
-
-  <div class="profile-box">
-    <h4>⚙️ تعديل الملف الشخصي</h4>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <input id="editName" placeholder="الاسم" style="width:45%"/>
-      <input id="editInsta" placeholder="@instagram" style="width:45%"/>
-    </div>
-    <button onclick="saveProfile()" style="margin-top:10px;width:100%">💾 حفظ التغييرات</button>
-    <button onclick="openChangePassword()" style="margin-top:10px;width:100%;background:#ffd700;color:#000">🔐 تغيير كلمة السر</button>
-  </div>
-
-  <div class="profile-box">
-    <h4>📋 آخر الطلبات</h4>
-    <div id="ordersList">
-      <p style="color:var(--muted)">لا توجد طلبات محفوظة</p>
-    </div>
-  </div>
-
-</div>
-
-<!-- نافذة استعادة كلمة المرور -->
-<div id="passwordResetModal" class="modal-backdrop" style="display:none">
-  <div class="modal">
-    <h3 style="color:#ffd700">🔓 استعادة كلمة المرور</h3>
-    <p>أدخل بريدك الإلكتروني وسنرسل لك رابطًا لإعادة تعيين كلمة المرور:</p>
-    <input type="email" id="forgotEmail" placeholder="بريدك الإلكتروني" style="width:100%;padding:12px;margin:15px 0;background:#0f1724;color:#fff;border:1px solid #4da3ff;border-radius:8px">
-    
-    <div style="display:flex;gap:10px;margin-top:20px">
-      <button onclick="handlePasswordReset()" style="flex:1;background:#00d4aa;color:#000;font-weight:900;padding:12px;border-radius:10px;border:none;cursor:pointer">
-        إرسال رابط الاستعادة
-      </button>
-      <button onclick="closePasswordResetModal()" style="flex:1;background:transparent;color:var(--accent);border:2px solid var(--accent);padding:12px;border-radius:10px;cursor:pointer;font-weight:700">
-        إلغاء
-      </button>
-    </div>
-    
-    <div style="margin-top:15px;background:rgba(255,215,0,0.1);padding:12px;border-radius:8px;border-left:4px solid #ffd700">
-      <p style="margin:0;color:#ffd700;font-size:14px">✅ سيرسل لك Firebase رابط إعادة التعيين على بريدك الإلكتروني</p>
-    </div>
-  </div>
-</div>
-
-<!-- loading -->
-<div class="loading" id="loading">
-  <div class="spinner"></div>
-  <p style="margin-top:10px">جاري المعالجة...</p>
-</div>
-
-<!-- نافذة النجاح -->
-<div class="success-popup" id="successPopup">
-  <div class="popup-card">
-    <div class="crown">👑</div>
-    <h2>شكراً لتعاملك مع MR Store</h2>
-    <p>تم نسخ معلومات طلبك وفتح البريد.</p>
-    <button onclick="closePopup()">تم</button>
-  </div>
-</div>
-
-<footer class="footer">© 2025 MR Store</footer>
 
 <script>
-// ==================== FIREBASE CONFIGURATION ====================
-// 🔥 ضع معلومات Firebase هنا (من الخطوة السابقة)
-const firebaseConfig = {
-  apiKey: "AIzaSyCOaYXdUcSXdYnbaeWxQajxYFxqBvZJV54",
-  authDomain: "mr-store-b18a3.firebaseapp.com",
-  projectId: "mr-store-b18a3",
-  storageBucket: "mr-store-b18a3.firebasestorage.app",
-  messagingSenderId: "964415721116",
-  appId: "1:964415721116:web:9d7e8df7af69d76974a759"
-};
-
-// Initialize Firebase
-const app = firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-const storage = firebase.storage();
-
-// ==================== DATA ====================
-const DATA = {
-  games:{
-    pubg:[{name:"30 شدة",price:0.40},{name:"60 شدة",price:0.70},{name:"300+25 شدة",price:3.25},{name:"600+60 شدة",price:6.35},{name:"1500+300 شدة",price:15.70}],
-    freefire:[{name:"110 جواهر",price:0.75},{name:"231 جوهرة",price:1.45},{name:"583 جوهرة",price:3.50},{name:"1188 جوهرة",price:6.90},{name:"2420 جوهرة",price:13.80}],
-    deltaforce:[{name:"19 ذهبة",price:0.30},{name:"32 ذهبة",price:0.45},{name:"63 ذهبة",price:0.80},{name:"336 ذهبة",price:4.00},{name:"482 ذهبة",price:5.50},{name:"785 ذهبة",price:7.40}],
-    roblox:[{name:"$10",price:7.60},{name:"$20",price:14.60},{name:"$25",price:18.00},{name:"$40",price:28.60},{name:"$50",price:35.65},{name:"$100",price:71.00}],
-    newstate:[{name:"300 NC",price:1.00},{name:"1500+80 NC",price:3.80},{name:"3600+250 NC",price:8.90},{name:"9300+930 NC",price:22.50}]
-  },
-  psn:{
-    usa:[{name:"$10",price:7.20},{name:"$25",price:17.85},{name:"$50",price:32.80},{name:"$55",price:39.50},{name:"$75",price:53.50}],
-    sa:[{name:"$10",price:8.25},{name:"$20",price:15.20},{name:"$40",price:30.40},{name:"$50",price:37.75},{name:"$70",price:52.35}]
-  }
-};
-
-// ==================== GLOBAL VARIABLES ====================
-let currentUser = null;
-let lastOrderData = null;
-let firebaseUserData = null;
-
-// ==================== ELEMENTS ====================
-const paymentSection = document.getElementById('paymentSection');
-const productsSection = document.getElementById('productsSection');
-const gamesSection = document.getElementById('gamesSection');
-const psnSection = document.getElementById('psnSection');
-const cardsSection = document.getElementById('cardsSection');
-const gameAmount = document.getElementById('gameAmount');
-const psnAmount = document.getElementById('psnAmount');
-const gameTotalEl = document.getElementById('gameTotal');
-const psnTotalEl = document.getElementById('psnTotal');
-const detailsSection = document.getElementById('detailsSection');
-const gameDiscountBtn = document.getElementById('gameDiscountBtn');
-const psnDiscountBtn = document.getElementById('psnDiscountBtn');
-const repeatLastBtn = document.getElementById('repeatLastBtn');
-const quickHistory = document.getElementById('quickHistory');
-const quickHistoryList = document.getElementById('quickHistoryList');
-const loading = document.getElementById('loading');
-const profileImageInput = document.getElementById('profileImageInput');
-
-// ==================== FIREBASE AUTH FUNCTIONS ====================
-async function signUpWithFirebase(email, password, username, instagram) {
-  try {
-    showLoading(true);
-    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-    const user = userCredential.user;
-    
-    // Save user data to Firestore
-    await db.collection('users').doc(user.uid).set({
-      username: username,
-      instagram: instagram || '',
-      email: email,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      profileImage: '',
-      orders: []
-    });
-    
-    showLoading(false);
-    return { success: true, user: user };
-  } catch (error) {
-    showLoading(false);
-    return { success: false, error: error.message };
-  }
-}
-
-async function loginWithFirebase(email, password) {
-  try {
-    showLoading(true);
-    const userCredential = await auth.signInWithEmailAndPassword(email, password);
-    showLoading(false);
-    return { success: true, user: userCredential.user };
-  } catch (error) {
-    showLoading(false);
-    return { success: false, error: error.message };
-  }
-}
-
-async function resetPasswordFirebase(email) {
-  try {
-    showLoading(true);
-    await auth.sendPasswordResetEmail(email);
-    showLoading(false);
-    return { success: true, message: 'تم إرسال رابط إعادة التعيين إلى بريدك الإلكتروني' };
-  } catch (error) {
-    showLoading(false);
-    return { success: false, error: error.message };
-  }
-}
-
-async function changePasswordFirebase(newPassword) {
-  try {
-    showLoading(true);
-    const user = auth.currentUser;
-    await user.updatePassword(newPassword);
-    showLoading(false);
-    return { success: true, message: 'تم تغيير كلمة المرور بنجاح' };
-  } catch (error) {
-    showLoading(false);
-    return { success: false, error: error.message };
-  }
-}
-
-async function getUserDataFromFirestore(userId) {
-  try {
-    const doc = await db.collection('users').doc(userId).get();
-    if (doc.exists) {
-      return { success: true, data: doc.data() };
-    } else {
-      return { success: false, error: 'المستخدم غير موجود' };
-    }
-  } catch (error) {
-    return { success: false, error: error.message };
-  }
-}
-
-async function updateUserProfileInFirestore(userId, data) {
-  try {
-    await db.collection('users').doc(userId).update(data);
-    return { success: true };
-  } catch (error) {
-    return { success: false, error: error.message };
-  }
-}
-
-async function saveOrderToFirestore(userId, orderData) {
-  try {
-    const orderRef = await db.collection('users').doc(userId).collection('orders').add({
-      ...orderData,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      status: 'pending'
-    });
-    
-    return { success: true, orderId: orderRef.id };
-  } catch (error) {
-    return { success: false, error: error.message };
-  }
-}
-
-async function getUserOrdersFromFirestore(userId) {
-  try {
-    const snapshot = await db.collection('users').doc(userId).collection('orders')
-      .orderBy('createdAt', 'desc')
-      .limit(10)
-      .get();
-    
-    const orders = [];
-    snapshot.forEach(doc => {
-      orders.push({ id: doc.id, ...doc.data() });
-    });
-    
-    return { success: true, orders: orders };
-  } catch (error) {
-    return { success: false, error: error.message };
-  }
-}
-
-async function uploadProfileImageToStorage(userId, file) {
-  try {
-    const storageRef = storage.ref(`profile_images/${userId}/${Date.now()}_${file.name}`);
-    const snapshot = await storageRef.put(file);
-    const downloadURL = await snapshot.ref.getDownloadURL();
-    
-    await updateUserProfileInFirestore(userId, { profileImage: downloadURL });
-    
-    return { success: true, imageUrl: downloadURL };
-  } catch (error) {
-    return { success: false, error: error.message };
-  }
-}
-
-async function deleteProfileImageFromStorage(userId, imageUrl) {
-  try {
-    const imageRef = storage.refFromURL(imageUrl);
-    await imageRef.delete();
-    
-    await updateUserProfileInFirestore(userId, { profileImage: '' });
-    
-    return { success: true };
-  } catch (error) {
-    return { success: false, error: error.message };
-  }
-}
-
-// ==================== AUTH STATE LISTENER ====================
-auth.onAuthStateChanged(async (user) => {
-  if (user) {
-    // User is signed in
-    const userData = await getUserDataFromFirestore(user.uid);
-    if (userData.success) {
-      firebaseUserData = userData.data;
-      setCurrentUser({
-        uid: user.uid,
-        email: user.email,
-        ...userData.data
-      });
-      updateQuickHistory();
-    }
-  } else {
-    // User is signed out
-    firebaseUserData = null;
-    document.getElementById('headerAuthBtn').style.display = 'inline-block';
-    document.getElementById('headerUserMenu').style.display = 'none';
-    quickHistory.style.display = 'none';
-  }
-});
-
-// ==================== INITIALIZATION ====================
-function init() {
-  // تلقائيًا، onAuthStateChanged سيتعامل مع حالة المستخدم
-  resetDiscountButton('game');
-  resetDiscountButton('psn');
-  showProducts();
-  loadLastOrder();
-  
-  // إعداد حدث تحميل الصور
-  if (profileImageInput) {
-    profileImageInput.addEventListener('change', handleProfileImageUpload);
-  }
-}
-
-// ==================== SHOW SECTIONS ====================
-function showPayment(){
-  setActiveNav('navPayment');
-  productsSection.style.display='none';
-  cardsSection.style.display='none';
-  paymentSection.style.display='block';
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-
-function showProducts(){
-  setActiveNav('navProducts');
-  paymentSection.style.display='none';
-  cardsSection.style.display='none';
-  productsSection.style.display='block';
-  window.scrollTo({top:0,behavior:'smooth'});
-  updateQuickHistory();
-}
-
-function showCards(){
-  setActiveNav('navCards');
-  productsSection.style.display='none';
-  paymentSection.style.display='none';
-  cardsSection.style.display='block';
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-
-function setActiveNav(navId){
-  document.querySelectorAll('nav a').forEach(a=>a.classList.remove('active'));
-  document.getElementById(navId).classList.add('active');
-}
-
-// ==================== CATEGORY ====================
-function updateCategory(){
-  const c=document.getElementById('category').value;
-  gamesSection.style.display=(c==='games')?'block':'none';
-  psnSection.style.display=(c==='psn')?'block':'none';
-  detailsSection.style.display='none';
-  repeatLastBtn.style.display='none';
-  gameAmount.innerHTML='';
-  psnAmount.innerHTML='';
-  gameTotalEl.textContent='المبلغ الإجمالي: 0.00 د.أ';
-  psnTotalEl.textContent='المبلغ الإجمالي: 0.00 د.أ';
-  resetDiscountButton('game');
-  resetDiscountButton('psn');
-}
-
-// ==================== GAMES LIST ====================
-function updateGameOptions(){
-  const g=document.getElementById('game').value;
-  gameAmount.innerHTML='';
-  if(!g){document.getElementById('gameAmountSection').style.display='none';return;}
-  DATA.games[g].forEach(item=>{
-    const o=document.createElement('option');
-    o.value=`${item.name} - ${item.price.toFixed(2)}`;
-    o.dataset.basePrice=item.price;
-    o.dataset.price=item.price;
-    o.textContent=`${item.name} - ${item.price.toFixed(2)} د.أ`;
-    gameAmount.appendChild(o);
-  });
-  document.getElementById('gameAmountSection').style.display='block';
-  calculateTotal('game');
-}
-
-// ==================== PSN LIST ====================
-function updatePSNOptions(){
-  const p=document.getElementById('psnType').value;
-  psnAmount.innerHTML='';
-  if(!p){document.getElementById('psnAmountSection').style.display='none';return;}
-  DATA.psn[p].forEach(item=>{
-    const o=document.createElement('option');
-    o.value=`${item.name} - ${item.price.toFixed(2)}`;
-    o.dataset.basePrice=item.price;
-    o.dataset.price=item.price;
-    o.textContent=`${item.name} - ${item.price.toFixed(2)} د.أ`;
-    psnAmount.appendChild(o);
-  });
-  document.getElementById('psnAmountSection').style.display='block';
-  calculateTotal('psn');
-}
-
-// ==================== SELECTION LIMIT ====================
-function handleSelectionLimit(section){
-  const el=(section==='game')?gameAmount:psnAmount;
-  const selected=[...el.selectedOptions];
-  if(selected.length>3){
-    showAlert('مسموح اختيار 3 باقات فقط','error');
-    selected[selected.length-1].selected=false;
-    return;
-  }
-  detailsSection.style.display=(selected.length>0)?'block':'none';
-  calculateTotal(section);
-}
-
-// ==================== CALCULATE TOTAL ====================
-function calculateTotal(section){
-  let total=0;
-  if(section==='game'){
-    [...gameAmount.selectedOptions].forEach(o=>{total+=parseFloat(o.dataset.price||0);});
-    gameTotalEl.textContent=`المبلغ الإجمالي: ${total.toFixed(2)} د.أ`;
-  }else{
-    [...psnAmount.selectedOptions].forEach(o=>{total+=parseFloat(o.dataset.price||0);});
-    psnTotalEl.textContent=`المبلغ الإجمالي: ${total.toFixed(2)} د.أ`;
-  }
-}
-
-// ==================== DISCOUNT FUNCTIONS ====================
-function resetDiscountButton(type){
-  const btn=(type==='game')?gameDiscountBtn:psnDiscountBtn;
-  const key=(type==='game')?'discount_used_games':'discount_used_psn';
-  const last=localStorage.getItem(key);
-  if(last && (Date.now()-parseInt(last))<7200000){
-    btn.classList.add('used');
-    btn.disabled=true;
-    btn.textContent='✔ تم استخدام الخصم';
-  }else{
-    btn.classList.remove('used');
-    btn.disabled=false;
-    btn.textContent='💰 تفعيل خصم 1.5%';
-  }
-}
-
-function applyDiscount(type){
-  const key=(type==='game')?'discount_used_games':'discount_used_psn';
-  const btn=(type==='game')?gameDiscountBtn:psnDiscountBtn;
-  const last=localStorage.getItem(key);
-  const now=Date.now();
-
-  if(last && (now-parseInt(last))<7200000){
-    const remaining=Math.ceil((7200000-(now-parseInt(last)))/60000);
-    showAlert(`الخصم مرة كل ساعتين. تبقى ${remaining} دقيقة`,'warning');
-    return;
-  }
-
-  const el=(type==='game')?gameAmount:psnAmount;
-  [...el.options].forEach(op=>{
-    const base=parseFloat(op.dataset.basePrice);
-    const discounted=parseFloat((base*0.985).toFixed(2));
-    op.dataset.price=discounted;
-    const name=op.value.split('-')[0].trim();
-    op.textContent=`${name} - ${discounted.toFixed(2)} د.أ`;
-    op.value=`${name} - ${discounted.toFixed(2)}`;
-  });
-
-  localStorage.setItem(key,now);
-  btn.classList.add('used');
-  btn.disabled=true;
-  btn.textContent='✔ تم استخدام الخصم';
-  calculateTotal(type);
-  showAlert('تم تفعيل الخصم بنجاح!','success');
-}
-
-// ==================== ORDER FUNCTIONS ====================
-function buildOrderBodyEncoded(){
-  const cat=document.getElementById('category').value||'-';
-  const arr=[];
-  arr.push("🏬 المتجر: MR Store");
-  arr.push(`📁 القسم: ${cat}`);
-
-  if(cat==='games'){
-    const game=document.getElementById('game').value||'-';
-    const selected=[...gameAmount.selectedOptions].map(o=>o.textContent);
-    arr.push(`🎮 اللعبة: ${game}`);
-    arr.push(`📦 الباقات: ${selected.join(', ')||'-'}`);
-  }
-
-  if(cat==='psn'){
-    const type=document.getElementById('psnType').value||'-';
-    const selected=[...psnAmount.selectedOptions].map(o=>o.textContent);
-    const delivery=document.getElementById('psnDelivery').value||'-';
-    arr.push(`🎴 نوع PSN: ${type}`);
-    arr.push(`📦 الباقات: ${selected.join(', ')||'-'}`);
-    arr.push(`📨 طريقة الاستلام: ${delivery}`);
-  }
-
-  const totalGame=[...gameAmount.selectedOptions].reduce((s,o)=>s+parseFloat(o.dataset.price||0),0);
-  const totalPsn=[...psnAmount.selectedOptions].reduce((s,o)=>s+parseFloat(o.dataset.price||0),0);
-  const grand=(totalGame+totalPsn).toFixed(2);
-
-  arr.push(`💰 المبلغ الإجمالي الكلي: ${grand} د.أ`);
-  arr.push(`👤 اسم المستخدم/ID: ${document.getElementById('username').value}`);
-  arr.push(`📱 إنستغرام: ${document.getElementById('insta').value}`);
-  arr.push(`📧 البريد الإلكتروني: ${document.getElementById('email').value}`);
-  arr.push(`📝 ملاحظات: ${document.getElementById('notes').value||'-'}`);
-
-  lastOrderData = {
-    category: cat,
-    game: document.getElementById('game').value,
-    psnType: document.getElementById('psnType').value,
-    gameItems: [...gameAmount.selectedOptions].map(o => ({text: o.textContent, price: o.dataset.price})),
-    psnItems: [...psnAmount.selectedOptions].map(o => ({text: o.textContent, price: o.dataset.price})),
-    psnDelivery: document.getElementById('psnDelivery').value,
-    username: document.getElementById('username').value,
-    insta: document.getElementById('insta').value,
-    email: document.getElementById('email').value,
-    notes: document.getElementById('notes').value,
-    total: grand,
-    timestamp: Date.now()
-  };
-  
-  localStorage.setItem('mr_last_order', JSON.stringify(lastOrderData));
-
-  return encodeURIComponent(arr.join("\n"));
-}
-
-async function sendOrder(){
-  showLoading(true);
-  
-  try {
-    const cat=document.getElementById('category').value;
-    if(!cat){showAlert('اختر القسم','error'); showLoading(false); return;}
-
-    if(cat==='games' && gameAmount.selectedOptions.length===0){showAlert('اختر باقة واحدة على الأقل','error'); showLoading(false); return;}
-    if(cat==='psn' && psnAmount.selectedOptions.length===0){showAlert('اختر باقة واحدة على الأقل','error'); showLoading(false); return;}
-
-    const username=document.getElementById('username').value.trim();
-    const insta=document.getElementById('insta').value.trim();
-    const email=document.getElementById('email').value.trim();
-
-    if(!username || !insta || !email){showAlert("املأ جميع الخانات",'error'); showLoading(false); return;}
-
-    const bodyEnc=buildOrderBodyEncoded();
-    const bodyPlain=decodeURIComponent(bodyEnc);
-
-    try{await navigator.clipboard.writeText(bodyPlain);}catch(e){}
-
-    // Save order to Firebase if user is logged in
-    if (currentUser && currentUser.uid) {
-      const orderData = {
-        body: bodyPlain,
-        category: cat,
-        total: lastOrderData.total,
-        username: username,
-        insta: insta,
-        email: email
-      };
-      
-      await saveOrderToFirestore(currentUser.uid, orderData);
-    }
-
-    repeatLastBtn.style.display='block';
-    updateQuickHistory();
-
-    const subject=encodeURIComponent("طلب من MR Store");
-    const to="asdm86411@gmail.com";
-    const cc="elzw520@gmail.com";
-
-    const link=`mailto:${to}?cc=${cc}&subject=${subject}&body=${bodyEnc}`;
-    setTimeout(() => {
-      window.open(link,"_blank");
-      document.getElementById('successPopup').style.display='flex';
-      showLoading(false);
-    }, 500);
-
-  } catch(error) {
-    showAlert('حدث خطأ أثناء إرسال الطلب','error');
-    showLoading(false);
-  }
-}
-
-// ==================== REPEAT LAST ORDER ====================
-function repeatLastOrder(){
-  if(!lastOrderData) {
-    loadLastOrder();
-    if(!lastOrderData) {
-      showAlert('لا يوجد طلب سابق','info');
-      return;
-    }
-  }
-  
-  document.getElementById('category').value = lastOrderData.category || '';
-  updateCategory();
-  
-  if(lastOrderData.category === 'games') {
-    setTimeout(() => {
-      document.getElementById('game').value = lastOrderData.game || '';
-      updateGameOptions();
-      
-      setTimeout(() => {
-        const items = lastOrderData.gameItems || [];
-        for(let i = 0; i < gameAmount.options.length; i++) {
-          const option = gameAmount.options[i];
-          const itemText = option.textContent;
-          const wasSelected = items.some(item => item.text === itemText);
-          option.selected = wasSelected;
+    (function(){
+        // ---------- إعدادات اللعبة ----------
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreSpan = document.getElementById('scoreValue');
+        const statusDiv = document.getElementById('gameStatus');
+        
+        // أبعاد الشبكة (سلالم كلاسيكية 20x20)
+        const GRID_SIZE = 20;      // 20x20 خلية
+        const CELL_SIZE = canvas.width / GRID_SIZE; // 25px
+        
+        // متغيرات الثعبان
+        let snake = [];     // مصفوفة قطع [{x, y}]
+        let direction = 'RIGHT';    // الاتجاه الحالي
+        let nextDirection = 'RIGHT';
+        let food = { x: 12, y: 10 };
+        let score = 0;
+        let gameLoop = null;
+        let gameRunning = true;
+        let gameSpeed = 120;   // ميلي ثانية (سلس وليس سريع جداً)
+        
+        // --- دوال مساعدة ---
+        function randomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
         }
-        handleSelectionLimit('game');
-        calculateTotal('game');
-      }, 100);
-    }, 100);
-  }
-  
-  if(lastOrderData.category === 'psn') {
-    setTimeout(() => {
-      document.getElementById('psnType').value = lastOrderData.psnType || '';
-      updatePSNOptions();
-      
-      setTimeout(() => {
-        const items = lastOrderData.psnItems || [];
-        for(let i = 0; i < psnAmount.options.length; i++) {
-          const option = psnAmount.options[i];
-          const itemText = option.textContent;
-          const wasSelected = items.some(item => item.text === itemText);
-          option.selected = wasSelected;
+        
+        // توليد تفاحة جديدة في مكان فارغ
+        function generateRandomFood() {
+            const totalCells = GRID_SIZE * GRID_SIZE;
+            if (snake.length >= totalCells) {
+                // فوز ساحق! (إذا ملأ الشاشة)
+                gameWin();
+                return false;
+            }
+            
+            // تجميع الخلايا الفارغة
+            const snakeSet = new Set(snake.map(segment => `${segment.x},${segment.y}`));
+            if (snakeSet.size === totalCells) {
+                gameWin();
+                return false;
+            }
+            
+            let newFoodPos = null;
+            let attempts = 0;
+            while (!newFoodPos && attempts < 2000) {
+                const randX = randomInt(0, GRID_SIZE-1);
+                const randY = randomInt(0, GRID_SIZE-1);
+                if (!snakeSet.has(`${randX},${randY}`)) {
+                    newFoodPos = { x: randX, y: randY };
+                    break;
+                }
+                attempts++;
+            }
+            // لو فيه عناد (نادر) ندور بشكل تسلسلي
+            if (!newFoodPos) {
+                for (let i = 0; i < GRID_SIZE; i++) {
+                    for (let j = 0; j < GRID_SIZE; j++) {
+                        if (!snakeSet.has(`${i},${j}`)) {
+                            newFoodPos = { x: i, y: j };
+                            break;
+                        }
+                    }
+                    if (newFoodPos) break;
+                }
+            }
+            if (newFoodPos) {
+                food = newFoodPos;
+                return true;
+            } else {
+                gameWin();
+                return false;
+            }
         }
-        document.getElementById('psnDelivery').value = lastOrderData.psnDelivery || 'direct';
-        handleSelectionLimit('psn');
-        calculateTotal('psn');
-      }, 100);
-    }, 100);
-  }
-  
-  document.getElementById('username').value = lastOrderData.username || '';
-  document.getElementById('insta').value = lastOrderData.insta || '';
-  document.getElementById('email').value = lastOrderData.email || '';
-  document.getElementById('notes').value = lastOrderData.notes || '';
-  
-  showAlert('تم تعبئة بيانات آخر طلبية','success');
-}
-
-function loadLastOrder(){
-  try {
-    const saved = localStorage.getItem('mr_last_order');
-    if(saved) {
-      lastOrderData = JSON.parse(saved);
-    }
-  } catch(e) {
-    console.error('Error loading last order:', e);
-  }
-}
-
-// ==================== QUICK HISTORY ====================
-async function updateQuickHistory(){
-  if(!currentUser || !currentUser.uid) {
-    quickHistory.style.display = 'none';
-    return;
-  }
-  
-  try {
-    const result = await getUserOrdersFromFirestore(currentUser.uid);
-    
-    if(!result.success || !result.orders || result.orders.length === 0) {
-      quickHistory.style.display = 'none';
-      return;
-    }
-  
-    const orders = result.orders.slice(0, 3); // آخر 3 طلبات
-    quickHistoryList.innerHTML = '';
-    
-    orders.forEach((order) => {
-      const div = document.createElement('div');
-      div.className = 'history-item';
-      
-      const lines = order.body ? order.body.split('\n') : [];
-      const category = lines.find(l => l && l.includes('القسم:'))?.replace('القسم:', '').trim() || 'غير معروف';
-      const total = order.total || '0.00 د.أ';
-      const date = order.createdAt ? new Date(order.createdAt.toDate()).toLocaleDateString('ar-SA') : 'غير معروف';
-      
-      div.innerHTML = `
-        <div class="history-details">
-          <div style="font-weight:700;color:var(--accent)">${category}</div>
-          <div style="font-size:14px;color:var(--muted)">${date}</div>
-          <div style="color:#ffd700;font-weight:700">${total}</div>
-        </div>
-        <button class="repeat-order-btn" onclick="fillOrderFromHistory('${order.id}')">
-          🔄 إعادة
-        </button>
-      `;
-      
-      quickHistoryList.appendChild(div);
-    });
-    
-    quickHistory.style.display = 'block';
-  } catch(error) {
-    console.error('Error updating quick history:', error);
-    quickHistory.style.display = 'none';
-  }
-}
-
-async function fillOrderFromHistory(orderId){
-  if(!currentUser || !currentUser.uid) return;
-  
-  try {
-    const doc = await db.collection('users').doc(currentUser.uid).collection('orders').doc(orderId).get();
-    if(!doc.exists) return;
-    
-    const order = doc.data();
-    const lines = order.body.split('\n');
-    
-    const categoryLine = lines.find(l => l.includes('القسم:'));
-    const userLine = lines.find(l => l.includes('اسم المستخدم/ID:'));
-    const instaLine = lines.find(l => l.includes('إنستغرام:'));
-    const emailLine = lines.find(l => l.includes('البريد الإلكتروني:'));
-    const notesLine = lines.find(l => l.includes('ملاحظات:'));
-    
-    if(categoryLine) {
-      const category = categoryLine.split(':')[1]?.trim().toLowerCase();
-      document.getElementById('category').value = category || '';
-      updateCategory();
-    }
-    
-    if(userLine) document.getElementById('username').value = userLine.split(':')[1]?.trim() || '';
-    if(instaLine) document.getElementById('insta').value = instaLine.split(':')[1]?.trim() || '';
-    if(emailLine) document.getElementById('email').value = emailLine.split(':')[1]?.trim() || '';
-    if(notesLine && notesLine.includes('ملاحظات:')) {
-      document.getElementById('notes').value = notesLine.split(':')[1]?.trim() || '';
-    }
-    
-    closeProfile();
-    showAlert('تم تعبئة بيانات الطلب، يرجى اختيار المنتجات مرة أخرى','success');
-  } catch(e) {
-    showAlert('حدث خطأ في تحميل الطلب','error');
-  }
-}
-
-// ==================== UTILITY FUNCTIONS ====================
-function copyAlias(){
-  const alias=document.getElementById('aliasName').textContent.trim();
-  navigator.clipboard.writeText(alias).then(()=>showAlert("تم نسخ الاسم",'success')).catch(()=>showAlert("فشل النسخ",'error'));
-}
-
-function closePopup(){
-  document.getElementById('successPopup').style.display='none';
-}
-
-function showLoading(show){
-  loading.style.display = show ? 'block' : 'none';
-}
-
-// ==================== PROFILE IMAGE HANDLING ====================
-async function handleProfileImageUpload(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  
-  if (file.size > 2 * 1024 * 1024) {
-    showAlert('حجم الصورة يجب أن يكون أقل من 2MB', 'error');
-    return;
-  }
-  
-  if (!file.type.match('image.*')) {
-    showAlert('يرجى اختيار ملف صورة فقط', 'error');
-    return;
-  }
-  
-  if (!currentUser || !currentUser.uid) {
-    showAlert('يجب تسجيل الدخول أولاً', 'error');
-    return;
-  }
-  
-  showLoading(true);
-  const result = await uploadProfileImageToStorage(currentUser.uid, file);
-  showLoading(false);
-  
-  if (result.success) {
-    updateProfileImages(result.imageUrl);
-    showAlert('تم تحديث صورة الملف الشخصي', 'success');
-  } else {
-    showAlert(result.error, 'error');
-  }
-}
-
-function updateProfileImages(imageData) {
-  // تحديث صورة الهيدر
-  const headerAvatar = document.getElementById('headerUserAvatar');
-  const headerFallback = document.getElementById('headerUserAvatarFallback');
-  
-  if (imageData) {
-    headerAvatar.src = imageData;
-    headerAvatar.style.display = 'block';
-    if (headerFallback) headerFallback.style.display = 'none';
-  } else {
-    if (headerAvatar) headerAvatar.style.display = 'none';
-    if (headerFallback) headerFallback.style.display = 'flex';
-  }
-  
-  // تحديث صورة الملف الشخصي الكبيرة
-  const profileAvatarLarge = document.getElementById('profileAvatarLarge');
-  const profileAvatarFallback = document.getElementById('profileAvatarFallback');
-  
-  if (imageData) {
-    profileAvatarLarge.src = imageData;
-    profileAvatarLarge.style.display = 'block';
-    if (profileAvatarFallback) profileAvatarFallback.style.display = 'none';
-  } else {
-    if (profileAvatarLarge) profileAvatarLarge.style.display = 'none';
-    if (profileAvatarFallback) profileAvatarFallback.style.display = 'flex';
-  }
-}
-
-async function removeProfileImage() {
-  if (!currentUser || !currentUser.uid || !firebaseUserData || !firebaseUserData.profileImage) {
-    return;
-  }
-  
-  showLoading(true);
-  const result = await deleteProfileImageFromStorage(currentUser.uid, firebaseUserData.profileImage);
-  showLoading(false);
-  
-  if (result.success) {
-    updateProfileImages(null);
-    showAlert('تم حذف صورة الملف الشخصي', 'success');
-  } else {
-    showAlert('حدث خطأ أثناء حذف الصورة', 'error');
-  }
-}
-
-function loadProfileImage() {
-  if (firebaseUserData && firebaseUserData.profileImage) {
-    updateProfileImages(firebaseUserData.profileImage);
-  } else {
-    updateProfileImages(null);
-  }
-}
-
-// ==================== AUTHENTICATION UI ====================
-function openAuth(){
-  if(currentUser){
-    toggleHeaderDropdown();
-    return;
-  }
-  
-  const backdrop = document.createElement('div');
-  backdrop.className='modal-backdrop';
-  backdrop.id='authBackdrop';
-  
-  const modal = document.createElement('div');
-  modal.className='modal';
-  modal.innerHTML = `
-    <h3 style="text-align: center;">👤 تسجيل الدخول / إنشاء حساب</h3>
-    <div id="authForms">
-      <div id="signInForm">
-        <div class="form-row"><input id="loginEmail" placeholder="البريد الإلكتروني" /></div>
-        <div class="form-row"><input id="loginPass" type="password" placeholder="كلمة المرور" /></div>
-        <div style="display:flex;gap:8px; margin-top: 20px;">
-          <button onclick="doLogin()" style="flex:1; background: var(--accent); color: #000; font-weight: 900;">تسجيل الدخول</button>
-          <button onclick="showSignUp()" style="flex:1; background:#ffd700; color:#000; font-weight: 900;">إنشاء حساب</button>
-        </div>
-        <div style="text-align: center; margin-top: 15px;">
-          <button onclick="openPasswordResetModal()" style="background: transparent; color: #ffd700; border: none; cursor: pointer; font-size: 14px; text-decoration: underline;">
-            🔓 نسيت كلمة المرور؟
-          </button>
-        </div>
-        <div class="small-note" style="text-align: center; margin-top: 10px;">
-          ستبقى معلوماتك مخزنة في سحابة Firebase الآمنة
-        </div>
-      </div>
-      <div id="signUpForm" style="display:none">
-        <div class="form-row"><input id="regUser" placeholder="الاسم الكامل" /></div>
-        <div class="form-row"><input id="regInsta" placeholder="@Instagram (اختياري)" /></div>
-        <div class="form-row"><input id="regEmail" placeholder="البريد الإلكتروني" /></div>
-        <div class="form-row"><input id="regPass" type="password" placeholder="كلمة المرور (6 أحرف على الأقل)" /></div>
-        <div class="form-row"><input id="regPassConfirm" type="password" placeholder="تأكيد كلمة المرور" /></div>
-        <div style="display:flex;gap:8px; margin-top: 20px;">
-          <button onclick="doSignUp()" style="flex:1; background: #00d4aa; color: #000; font-weight: 900;">إنشاء حساب</button>
-          <button onclick="showSignIn()" style="flex:1; background:#ffd700; color:#000; font-weight: 900;">لديك حساب؟</button>
-        </div>
-        <div class="small-note" style="text-align: center; margin-top: 10px;">
-          سيتم تخزين بياناتك بأمان في سحابة Google
-        </div>
-      </div>
-    </div>
-    <div style="text-align:center; margin-top:15px">
-      <button onclick="closeAuth()" style="background:transparent;color:var(--muted);border:none;cursor:pointer;font-size:14px">
-        إغلاق النافذة
-      </button>
-    </div>
-  `;
-  
-  backdrop.appendChild(modal);
-  document.body.appendChild(backdrop);
-  backdrop.style.display='flex';
-  
-  backdrop.addEventListener('click', (e)=>{ if(e.target===backdrop) closeAuth(); });
-}
-
-function closeAuth(){
-  const b=document.getElementById('authBackdrop');
-  if(b) b.remove();
-}
-
-function showSignUp(){
-  document.getElementById('signInForm').style.display='none';
-  document.getElementById('signUpForm').style.display='block';
-}
-
-function showSignIn(){
-  document.getElementById('signInForm').style.display='block';
-  document.getElementById('signUpForm').style.display='none';
-}
-
-async function doSignUp(){
-  const name=document.getElementById('regUser').value.trim();
-  const insta=document.getElementById('regInsta').value.trim();
-  const email=document.getElementById('regEmail').value.trim().toLowerCase();
-  const pass=document.getElementById('regPass').value;
-  const passConfirm=document.getElementById('regPassConfirm').value;
-
-  if(!name||!email||!pass){ showAlert('املأ الاسم والبريد وكلمة المرور','error'); return; }
-  if(pass.length < 6){ showAlert('كلمة المرور يجب أن تكون 6 أحرف على الأقل','error'); return; }
-  if(pass !== passConfirm){ showAlert('كلمات المرور غير متطابقة','error'); return; }
-
-  const result = await signUpWithFirebase(email, pass, name, insta);
-  
-  if(result.success) {
-    showAlert('تم التسجيل بنجاح!', 'success');
-    closeAuth();
-  } else {
-    showAlert(result.error, 'error');
-  }
-}
-
-async function doLogin(){
-  const email=document.getElementById('loginEmail').value.trim().toLowerCase();
-  const pass=document.getElementById('loginPass').value;
-  
-  if(!email||!pass){ showAlert('املأ البريد وكلمة المرور','error'); return; }
-  
-  const result = await loginWithFirebase(email, pass);
-  
-  if(result.success) {
-    showAlert('تم تسجيل الدخول بنجاح','success');
-    closeAuth();
-  } else {
-    showAlert(result.error, 'error');
-  }
-}
-
-async function logout(){
-  try {
-    await auth.signOut();
-    currentUser = null;
-    firebaseUserData = null;
-    showAlert('تم تسجيل الخروج','success');
-  } catch(error) {
-    showAlert('حدث خطأ أثناء تسجيل الخروج', 'error');
-  }
-}
-
-function setCurrentUser(userData){
-  currentUser = userData;
-  firebaseUserData = userData;
-  document.getElementById('headerAuthBtn').style.display='none';
-  document.getElementById('headerUserMenu').style.display='flex';
-  const firstLetter = (userData.username||'U').trim().slice(0,1).toUpperCase();
-  document.getElementById('headerUserAvatarFallback').textContent = firstLetter;
-  document.getElementById('headerUserName').textContent = userData.username || userData.email;
-  
-  // Load profile image
-  loadProfileImage();
-}
-
-function toggleHeaderDropdown(){
-  const dropdown = document.getElementById('headerDropdown');
-  dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-}
-
-// ==================== PASSWORD RECOVERY ====================
-function openPasswordResetModal() {
-  closeAuth();
-  document.getElementById('passwordResetModal').style.display = 'flex';
-}
-
-function closePasswordResetModal() {
-  document.getElementById('passwordResetModal').style.display = 'none';
-}
-
-async function handlePasswordReset() {
-  const email = document.getElementById('forgotEmail').value.trim();
-  
-  if (!email) {
-    showAlert('يرجى إدخال البريد الإلكتروني', 'error');
-    return;
-  }
-  
-  const result = await resetPasswordFirebase(email);
-  
-  if (result.success) {
-    showAlert('✅ تم إرسال رابط إعادة التعيين إلى بريدك الإلكتروني. يرجى التحقق من صندوق الوارد أو البريد العشوائي.', 'success');
-    closePasswordResetModal();
-  } else {
-    showAlert(result.error, 'error');
-  }
-}
-
-// ==================== PASSWORD CHANGE ====================
-function openChangePassword(){
-  const backdrop = document.createElement('div');
-  backdrop.className='modal-backdrop';
-  backdrop.id='passwordBackdrop';
-  
-  const modal = document.createElement('div');
-  modal.className='modal';
-  modal.style.maxWidth = '420px';
-  
-  modal.innerHTML = `
-    <h3 style="color: #00ffcc; margin-bottom: 20px; text-align: center;">🔐 تغيير كلمة المرور</h3>
-    
-    <div class="form-row">
-      <label>كلمة المرور الحالية:</label>
-      <input type="password" id="currentPassword" 
-             placeholder="أدخل كلمة المرور الحالية" 
-             style="margin-top: 5px;">
-    </div>
-    
-    <div class="form-row">
-      <label>كلمة المرور الجديدة:</label>
-      <input type="password" id="newPassword" 
-             placeholder="أدخل كلمة المرور الجديدة (6 أحرف على الأقل)" 
-             style="margin-top: 5px;">
-    </div>
-    
-    <div class="form-row">
-      <label>تأكيد كلمة المرور الجديدة:</label>
-      <input type="password" id="confirmPassword" 
-             placeholder="أعد إدخال كلمة المرور الجديدة" 
-             style="margin-top: 5px;">
-    </div>
-    
-    <div style="background: rgba(0, 212, 170, 0.1); 
-          padding: 10px; border-radius: 8px; margin: 10px 0; color: #99a3b3; font-size: 14px;">
-      <div style="margin-bottom: 5px;"><strong>متطلبات كلمة المرور:</strong></div>
-      <div>• 6 أحرف على الأقل</div>
-      <div>• لا تستخدم كلمات مرور سهلة مثل 123456</div>
-    </div>
-    
-    <div style="display: flex; gap: 10px; margin-top: 15px;">
-      <button onclick="saveNewPassword()" 
-              style="flex: 1; background: #00d4aa; color: black; font-weight: 900; padding: 12px; border-radius: 10px; border: none; cursor: pointer;">
-        حفظ التغييرات
-      </button>
-      <button onclick="closeChangePassword()" 
-              style="flex: 1; background: transparent; color: var(--accent); border: 2px solid var(--accent); padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 700;">
-        إلغاء
-      </button>
-    </div>
-    
-    <div style="margin-top: 15px; text-align: center;">
-      <button onclick="openPasswordResetModal()" 
-              style="background: transparent; color: #ffd700; border: none; 
-                     cursor: pointer; font-size: 14px; text-decoration: underline;">
-        نسيت كلمة المرور؟
-      </button>
-    </div>
-  `;
-  
-  backdrop.appendChild(modal);
-  document.body.appendChild(backdrop);
-  backdrop.style.display='flex';
-  
-  backdrop.addEventListener('click', (e)=>{ if(e.target===backdrop) closeChangePassword(); });
-}
-
-function closeChangePassword(){
-  const backdrop=document.getElementById('passwordBackdrop');
-  if(backdrop) {
-    backdrop.style.opacity = '0';
-    backdrop.style.transition = 'opacity 0.3s';
-    setTimeout(() => {
-      if (backdrop.parentNode) {
-        backdrop.remove();
-      }
-    }, 300);
-  }
-}
-
-async function saveNewPassword(){
-  const currentPass = document.getElementById('currentPassword').value;
-  const newPass = document.getElementById('newPassword').value;
-  const confirmPass = document.getElementById('confirmPassword').value;
-  
-  if(!currentPass || !newPass || !confirmPass){
-    showAlert('يرجى ملء جميع الحقول','error');
-    return;
-  }
-  
-  if(newPass.length < 6){
-    showAlert('كلمة المرور يجب أن تكون 6 أحرف على الأقل','error');
-    return;
-  }
-  
-  if(newPass !== confirmPass){
-    showAlert('كلمات المرور الجديدة غير متطابقة','error');
-    return;
-  }
-  
-  if(newPass === currentPass){
-    showAlert('كلمة المرور الجديدة يجب أن تكون مختلفة عن الحالية','error');
-    return;
-  }
-  
-  // Re-authenticate user first
-  const user = auth.currentUser;
-  const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPass);
-  
-  try {
-    showLoading(true);
-    await user.reauthenticateWithCredential(credential);
-    
-    // Now change password
-    const result = await changePasswordFirebase(newPass);
-    showLoading(false);
-    
-    if (result.success) {
-      showAlert('تم تغيير كلمة المرور بنجاح','success');
-      setTimeout(() => closeChangePassword(), 1500);
-    } else {
-      showAlert(result.error, 'error');
-    }
-  } catch(error) {
-    showLoading(false);
-    showAlert('كلمة المرور الحالية غير صحيحة', 'error');
-  }
-}
-
-// ==================== PROFILE SYSTEM ====================
-function openProfile(){
-  document.getElementById('headerDropdown').style.display='none';
-  buildProfilePanel();
-  document.getElementById('profilePanel').style.display='block';
-}
-
-function closeProfile(){
-  document.getElementById('profilePanel').style.display='none';
-}
-
-async function buildProfilePanel(){
-  if (!currentUser || !firebaseUserData) {
-    showAlert('لم يتم تسجيل الدخول','error');
-    return;
-  }
-  
-  const me = firebaseUserData;
-  const firstLetter = (me.username||'U').slice(0,1).toUpperCase();
-  
-  loadProfileImage();
-  
-  document.getElementById('profileAvatarFallback').textContent = firstLetter;
-  document.getElementById('profileName').textContent = me.username || 'مستخدم';
-  document.getElementById('profileInsta').textContent = me.instagram || '-';
-  document.getElementById('profileEmail').textContent = me.email || '-';
-  
-  const joinDate = me.createdAt ? new Date(me.createdAt.toDate()).toLocaleDateString('ar-SA') : 'غير معروف';
-  document.getElementById('profileMemberSince').textContent = `عضو منذ: ${joinDate}`;
-  
-  document.getElementById('editName').value = me.username || '';
-  document.getElementById('editInsta').value = me.instagram || '';
-  
-  // Load orders from Firebase
-  const ordersList = document.getElementById('ordersList');
-  ordersList.innerHTML = '<p style="color:var(--muted)">جاري تحميل الطلبات...</p>';
-  
-  try {
-    const result = await getUserOrdersFromFirestore(currentUser.uid);
-    
-    if(!result.success || !result.orders || result.orders.length === 0){
-      ordersList.innerHTML = '<p style="color:var(--muted)">لا توجد طلبات محفوظة</p>';
-    } else {
-      ordersList.innerHTML = '';
-      result.orders.forEach((ord, idx) => {
-        const div = document.createElement('div');
-        div.className = 'order-item';
-        div.innerHTML = `
-          <div style="display:flex;justify-content:space-between;gap:8px">
-            <div style="font-weight:800">${ord.createdAt ? new Date(ord.createdAt.toDate()).toLocaleString('ar-SA') : 'غير معروف'}</div>
-            <div>المجموع: <b style="color:#ffd700">${ord.total || '0.00'} د.أ</b></div>
-          </div>
-          <pre style="white-space:pre-wrap;margin-top:8px;color:#fff;background:transparent;border:none;font-family:Tajawal,sans-serif;max-height:150px;overflow:auto;padding:10px;background:#0a0f1a;border-radius:8px">${ord.body || ''}</pre>
-          <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center">
-            <button onclick="useOrderAgain('${ord.id}')" 
-                    style="background:#ffd700;color:#000;padding:6px 12px;border-radius:6px;border:none;cursor:pointer;font-weight:700">
-              🔄 إعادة استخدام هذا الطلب
-            </button>
-          </div>
-        `;
-        ordersList.appendChild(div);
-      });
-    }
-  } catch(error) {
-    ordersList.innerHTML = '<p style="color:var(--error)">حدث خطأ في تحميل الطلبات</p>';
-  }
-}
-
-async function useOrderAgain(orderId){
-  if(!currentUser || !currentUser.uid) return;
-  
-  try {
-    const doc = await db.collection('users').doc(currentUser.uid).collection('orders').doc(orderId).get();
-    if(!doc.exists) return;
-    
-    const order = doc.data();
-    const lines = order.body.split('\n');
-    
-    const categoryLine = lines.find(l => l.includes('القسم:'));
-    const userLine = lines.find(l => l.includes('اسم المستخدم/ID:'));
-    const instaLine = lines.find(l => l.includes('إنستغرام:'));
-    const emailLine = lines.find(l => l.includes('البريد الإلكتروني:'));
-    const notesLine = lines.find(l => l.includes('ملاحظات:'));
-    
-    if(categoryLine) {
-      const category = categoryLine.split(':')[1]?.trim().toLowerCase();
-      document.getElementById('category').value = category || '';
-      updateCategory();
-    }
-    
-    if(userLine) document.getElementById('username').value = userLine.split(':')[1]?.trim() || '';
-    if(instaLine) document.getElementById('insta').value = instaLine.split(':')[1]?.trim() || '';
-    if(emailLine) document.getElementById('email').value = emailLine.split(':')[1]?.trim() || '';
-    if(notesLine && notesLine.includes('ملاحظات:')) {
-      document.getElementById('notes').value = notesLine.split(':')[1]?.trim() || '';
-    }
-    
-    closeProfile();
-    showAlert('تم تعبئة بيانات الطلب، يرجى اختيار المنتجات مرة أخرى','success');
-  } catch(e) {
-    showAlert('حدث خطأ في تحليل الطلب','error');
-  }
-}
-
-async function saveProfile(){
-  const name = document.getElementById('editName').value.trim();
-  const insta = document.getElementById('editInsta').value.trim();
-  
-  if(!name){ showAlert('أدخل اسم','error'); return; }
-  
-  if(!currentUser || !currentUser.uid){ showAlert('لم يتم تسجيل الدخول','error'); return; }
-  
-  showLoading(true);
-  const result = await updateUserProfileInFirestore(currentUser.uid, {
-    username: name,
-    instagram: insta || ''
-  });
-  showLoading(false);
-  
-  if(result.success) {
-    // Update local data
-    firebaseUserData.username = name;
-    firebaseUserData.instagram = insta || '';
-    setCurrentUser({
-      uid: currentUser.uid,
-      email: currentUser.email,
-      ...firebaseUserData
-    });
-    showAlert('تم حفظ الملف','success');
-    buildProfilePanel();
-  } else {
-    showAlert('حدث خطأ أثناء حفظ التغييرات', 'error');
-  }
-}
-
-// ==================== ALERT SYSTEM ====================
-function showAlert(message, type = 'info', duration = 3000){
-  const oldAlerts = document.querySelectorAll('.custom-alert');
-  oldAlerts.forEach(alert => alert.remove());
-  
-  const alertDiv = document.createElement('div');
-  alertDiv.className = `custom-alert alert-${type}`;
-  
-  const icons = {
-    success: '✅',
-    error: '❌',
-    info: 'ℹ️',
-    warning: '⚠️'
-  };
-  
-  alertDiv.innerHTML = `
-    <span style="font-size: 24px;">${icons[type] || icons.info}</span>
-    <span style="flex: 1; text-align: right;">${message}</span>
-    <button onclick="this.parentElement.remove()" style="background:transparent;border:none;color:inherit;font-size:18px;cursor:pointer;padding:0 0 0 10px">✕</button>
-  `;
-  
-  document.body.appendChild(alertDiv);
-  
-  if(duration > 0){
-    setTimeout(() => {
-      if(alertDiv.parentNode){
-        alertDiv.style.opacity = '0';
-        alertDiv.style.transition = 'opacity 0.3s';
-        setTimeout(() => alertDiv.remove(), 300);
-      }
-    }, duration);
-  }
-}
-
-// ==================== TEST FIREBASE CONNECTION ====================
-async function testFirebaseConnection() {
-  try {
-    // محاولة قراءة بسيطة من Firestore
-    const testDoc = await db.collection('test').doc('connection').get();
-    console.log('✅ Firebase connection successful!');
-    
-    // اختبار Authentication
-    const authState = auth.currentUser;
-    console.log('✅ Firebase Auth ready! User:', authState ? 'Logged in' : 'Not logged in');
-    
-    return true;
-  } catch (error) {
-    console.error('❌ Firebase connection failed:', error);
-    showAlert('❌ خطأ في الاتصال بـ Firebase. تأكد من تفعيل الخدمات في Firebase Console.', 'error', 5000);
-    return false;
-  }
-}
-
-// ==================== INITIALIZATION ====================
-// تشغيل اختبار الاتصال عند تحميل الصفحة
-window.addEventListener('DOMContentLoaded', async () => {
-  await testFirebaseConnection();
-  init();
-});
-
-// إغلاق القوائم عند النقر خارجها
-document.addEventListener('click', (e)=>{
-  const headerMenu = document.getElementById('headerUserMenu');
-  const headerDropdown = document.getElementById('headerDropdown');
-  
-  if(headerMenu && headerDropdown){
-    if(!headerMenu.contains(e.target) && !headerDropdown.contains(e.target)){
-      headerDropdown.style.display='none';
-    }
-  }
-});
+        
+        // إنهاء اللعبة بالفوز
+        function gameWin() {
+            if (!gameRunning) return;
+            gameRunning = false;
+            if (gameLoop) clearInterval(gameLoop);
+            gameLoop = null;
+            statusDiv.innerText = '🏆 فوز! سلم كامل 🏆';
+            statusDiv.style.background = "#d4af37";
+            statusDiv.style.color = "#1f3a0a";
+        }
+        
+        // إنهاء اللعبة بالاصطدام
+        function gameOver() {
+            if (!gameRunning) return;
+            gameRunning = false;
+            if (gameLoop) clearInterval(gameLoop);
+            gameLoop = null;
+            statusDiv.innerText = '💀 انتهت اللعبة 💀';
+            statusDiv.style.background = "#a13e2d";
+            statusDiv.style.color = "#ffecb3";
+        }
+        
+        // إعادة ضبط كل شيء
+        function resetGame() {
+            // إيقاف اللوب القديم
+            if (gameLoop) {
+                clearInterval(gameLoop);
+                gameLoop = null;
+            }
+            // الثعبان الافتراضي (3 خلايا)
+            snake = [
+                { x: 10, y: 10 },
+                { x: 9, y: 10 },
+                { x: 8, y: 10 }
+            ];
+            direction = 'RIGHT';
+            nextDirection = 'RIGHT';
+            score = 0;
+            scoreSpan.innerText = "0";
+            gameRunning = true;
+            statusDiv.innerText = "🎮 العب";
+            statusDiv.style.background = "#3c280e";
+            statusDiv.style.color = "#ffe0a3";
+            
+            // توليد تفاحة بعيدة عن الثعبان
+            const snakeSet = new Set(snake.map(s => `${s.x},${s.y}`));
+            let freeCells = [];
+            for(let i=0; i<GRID_SIZE; i++) {
+                for(let j=0; j<GRID_SIZE; j++) {
+                    if(!snakeSet.has(`${i},${j}`)) freeCells.push({x:i, y:j});
+                }
+            }
+            if(freeCells.length > 0) {
+                const rand = Math.floor(Math.random() * freeCells.length);
+                food = freeCells[rand];
+            } else {
+                food = { x: 5, y: 5 }; // fallback
+            }
+            
+            // بدء اللوب الجديد
+            gameLoop = setInterval(updateGame, gameSpeed);
+            drawCanvas(); // رسم فوري
+        }
+        
+        // تحديث حالة اللعبة (الحركة، الأكل، الاصطدام)
+        function updateGame() {
+            if (!gameRunning) return;
+            
+            // 1. اعتماد الاتجاه الجديد (منع الرجوع للخلف)
+            let newDir = nextDirection;
+            if ((newDir === 'RIGHT' && direction === 'LEFT') ||
+                (newDir === 'LEFT' && direction === 'RIGHT') ||
+                (newDir === 'UP' && direction === 'DOWN') ||
+                (newDir === 'DOWN' && direction === 'UP')) {
+                newDir = direction;
+            }
+            direction = newDir;
+            
+            // 2. حساب الرأس الجديد
+            let newHead = { ...snake[0] };
+            switch(direction) {
+                case 'RIGHT': newHead.x += 1; break;
+                case 'LEFT':  newHead.x -= 1; break;
+                case 'UP':    newHead.y -= 1; break;
+                case 'DOWN':  newHead.y += 1; break;
+                default: break;
+            }
+            
+            // التحقق من أكل التفاحة أولاً (لحساب الذيل)
+            const willEat = (newHead.x === food.x && newHead.y === food.y);
+            
+            // تنفيذ الحركة: إضافة الرأس
+            snake.unshift(newHead);
+            if (!willEat) {
+                snake.pop();
+            } else {
+                // أكل التفاحة: زيادة النتيجة و توليد تفاحة جديدة
+                score++;
+                scoreSpan.innerText = score;
+                const success = generateRandomFood();
+                if (!success) {
+                    // إذا لم يعد مكان للتفاحة (فوز تلقائي)
+                    if (gameRunning) gameWin();
+                    drawCanvas();
+                    return;
+                }
+            }
+            
+            // 3. التحقق من الاصطدام بالحدود أو بالجسم
+            const head = snake[0];
+            // حدود
+            if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
+                gameOver();
+                drawCanvas();
+                return;
+            }
+            // التحقق من اصطدام بالجسم (تجاهل الرأس لأنه أول عنصر)
+            for (let i = 1; i < snake.length; i++) {
+                if (snake[i].x === head.x && snake[i].y === head.y) {
+                    gameOver();
+                    drawCanvas();
+                    return;
+                }
+            }
+            
+            // كل شيء سليم، نعيد الرسم
+            drawCanvas();
+        }
+        
+        // ---------- الرسم المبهج (سلم + تفاحة) ----------
+        function drawCanvas() {
+            if (!ctx) return;
+            // خلفية شبكية تشبه ألواح السلم
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // رسم شبكة خفيفة
+            for (let i = 0; i <= GRID_SIZE; i++) {
+                ctx.beginPath();
+                ctx.strokeStyle = "#e0cba080";
+                ctx.lineWidth = 0.8;
+                ctx.moveTo(i * CELL_SIZE, 0);
+                ctx.lineTo(i * CELL_SIZE, canvas.height);
+                ctx.stroke();
+                ctx.moveTo(0, i * CELL_SIZE);
+                ctx.lineTo(canvas.width, i * CELL_SIZE);
+                ctx.stroke();
+            }
+            
+            // رسم التفاحة (ذات تدرج وورقة)
+            ctx.shadowBlur = 0;
+            const fx = food.x * CELL_SIZE;
+            const fy = food.y * CELL_SIZE;
+            // ظل خفيف
+            ctx.shadowColor = "rgba(0,0,0,0.2)";
+            ctx.shadowBlur = 4;
+            // جسد التفاحة
+            ctx.beginPath();
+            ctx.arc(fx + CELL_SIZE/2, fy + CELL_SIZE/2, CELL_SIZE * 0.38, 0, Math.PI*2);
+            ctx.fillStyle = "#e34234";
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(fx + CELL_SIZE/2 - 2, fy + CELL_SIZE/2 - 3, 3, 0, Math.PI*2);
+            ctx.fillStyle = "#ff6b4a";
+            ctx.fill();
+            // ورقة التفاحة
+            ctx.fillStyle = "#6b8e23";
+            ctx.beginPath();
+            ctx.ellipse(fx + CELL_SIZE*0.7, fy + CELL_SIZE*0.25, 5, 8, -0.4, 0, Math.PI*2);
+            ctx.fill();
+            ctx.fillStyle = "#a5c639";
+            ctx.beginPath();
+            ctx.ellipse(fx + CELL_SIZE*0.65, fy + CELL_SIZE*0.22, 3, 6, -0.3, 0, Math.PI*2);
+            ctx.fill();
+            // غمازة
+            ctx.fillStyle = "#a1321f";
+            ctx.beginPath();
+            ctx.arc(fx + CELL_SIZE*0.65, fy + CELL_SIZE*0.45, 1.8, 0, Math.PI*2);
+            ctx.fill();
+            
+            // رسم الثعبان (على شكل كرات خضراء متدرجة + لمعان)
+            for (let i = 0; i < snake.length; i++) {
+                const seg = snake[i];
+                const sx = seg.x * CELL_SIZE;
+                const sy = seg.y * CELL_SIZE;
+                const radius = CELL_SIZE * 0.42;
+                const grad = ctx.createRadialGradient(sx+6, sy+6, 3, sx+CELL_SIZE/2, sy+CELL_SIZE/2, radius);
+                if (i === 0) {
+                    grad.addColorStop(0, "#6fbf4c");
+                    grad.addColorStop(1, "#3c9e2d");
+                } else {
+                    grad.addColorStop(0, "#5ca832");
+                    grad.addColorStop(1, "#2f7d1f");
+                }
+                ctx.beginPath();
+                ctx.arc(sx + CELL_SIZE/2, sy + CELL_SIZE/2, radius, 0, Math.PI*2);
+                ctx.fillStyle = grad;
+                ctx.fill();
+                ctx.shadowBlur = 2;
+                // عيون الثعبان للرأس
+                if (i === 0) {
+                    ctx.fillStyle = "white";
+                    ctx.beginPath();
+                    ctx.arc(sx + CELL_SIZE*0.65, sy + CELL_SIZE*0.35, 4, 0, Math.PI*2);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(sx + CELL_SIZE*0.35, sy + CELL_SIZE*0.35, 4, 0, Math.PI*2);
+                    ctx.fill();
+                    ctx.fillStyle = "#0a2f1a";
+                    ctx.beginPath();
+                    ctx.arc(sx + CELL_SIZE*0.68, sy + CELL_SIZE*0.33, 2, 0, Math.PI*2);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(sx + CELL_SIZE*0.38, sy + CELL_SIZE*0.33, 2, 0, Math.PI*2);
+                    ctx.fill();
+                    // لسان اختياري
+                    ctx.beginPath();
+                    ctx.moveTo(sx + CELL_SIZE*0.5, sy + CELL_SIZE*0.65);
+                    ctx.lineTo(sx + CELL_SIZE*0.45, sy + CELL_SIZE*0.78);
+                    ctx.lineTo(sx + CELL_SIZE*0.55, sy + CELL_SIZE*0.78);
+                    ctx.fillStyle = "#e34234";
+                    ctx.fill();
+                } else {
+                    // نقوش بسيطة
+                    ctx.fillStyle = "#d9e66b30";
+                    ctx.beginPath();
+                    ctx.arc(sx + CELL_SIZE*0.3, sy + CELL_SIZE*0.5, 3, 0, Math.PI*2);
+                    ctx.fill();
+                }
+            }
+            ctx.shadowBlur = 0;
+            
+            // إضافة تأثير "سلم" – درجات خشبية على الحواف
+            ctx.fillStyle = "#c49a6c30";
+            for (let i=0; i<GRID_SIZE; i+=2) {
+                ctx.fillRect(0, i*CELL_SIZE+CELL_SIZE-3, canvas.width, 2);
+            }
+            
+            // إذا انتهت اللعبة نضع طبقة شفاف مع نص
+            if (!gameRunning) {
+                ctx.globalAlpha = 0.75;
+                ctx.fillStyle = "#1a2a10";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.globalAlpha = 1;
+                ctx.font = `bold ${Math.floor(CELL_SIZE * 1.5)}px "Segoe UI", system-ui`;
+                ctx.fillStyle = "#fdebb3";
+                ctx.shadowBlur = 0;
+                ctx.textAlign = "center";
+                if (statusDiv.innerText.includes('فوز')) {
+                    ctx.fillText("🎉 فوز عظيم 🎉", canvas.width/2, canvas.height/2);
+                    ctx.font = `18px monospace`;
+                    ctx.fillText("اضغط 'سلم جديد'", canvas.width/2, canvas.height/2+45);
+                } else if (statusDiv.innerText.includes('انتهت')) {
+                    ctx.fillText("😵 انتهى السلم 😵", canvas.width/2, canvas.height/2);
+                    ctx.font = `16px monospace`;
+                    ctx.fillText("إضغط 'سلم جديد'", canvas.width/2, canvas.height/2+45);
+                } else {
+                    ctx.fillText("إضغط لإعادة", canvas.width/2, canvas.height/2);
+                }
+                ctx.textAlign = "left";
+            }
+        }
+        
+        // ---------- التحكم بالأسهم ----------
+        function handleKeyDown(e) {
+            if (!gameRunning) return;  // لا نغير الاتجاه إذا انتهت اللعبة ولكن يمكن إعادة الضبط بالزر
+            const key = e.key;
+            e.preventDefault();  // منع تمرير الصفحة
+            switch(key) {
+                case 'ArrowUp': nextDirection = 'UP'; break;
+                case 'ArrowDown': nextDirection = 'DOWN'; break;
+                case 'ArrowLeft': nextDirection = 'LEFT'; break;
+                case 'ArrowRight': nextDirection = 'RIGHT'; break;
+                default: return;
+            }
+        }
+        
+        // منع الأسهم من تحريك الصفحة أيضاً
+        window.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                e.preventDefault();
+            }
+        });
+        document.addEventListener('keydown', handleKeyDown);
+        
+        // زر إعادة التشغيل
+        const resetBtn = document.getElementById('resetButton');
+        resetBtn.addEventListener('click', () => {
+            resetGame();
+        });
+        
+        // بدء اللعبة لأول مرة
+        resetGame();
+        
+        // دعم اللمس للأجهزة اللوحية - تلميح بسيط (يمكن إضافة أزرار لكن الأسهم تعمل على لوحة مفاتيح خارجية، ولكن لمستخدمي الشاشات اللمسية نضيف إشارة)
+        // لا نضيف تعقيد زائد لكن المستخدم يمكنه استخدام لوحة المفاتيح أو نعرض تنبيه أن اللعبة مصممة للأسهم.
+        // اختياري: إضافة إشارات على الشاشة للموبايل بشكل بسيط
+        function handleTouchSwipe() { /* كتلميح اختياري، اللعبة متوافقة مع الأسهم فقط لكن على الموبايل يمكن إضافة أزرار? سريعاً: */
+            // نضيف div أزرار إذا كان الجهاز لمسي، لكن لتجنب تعقيد الكود، نكتفي بالنص التنبيهي.
+        }
+        
+        // رسم أولي بعد إعادة الضبط
+        drawCanvas();
+    })();
 </script>
 </body>
 </html>
