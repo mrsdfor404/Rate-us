@@ -3,14 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Hungry Snake </title>
+    <title>Hungry Snake 3D | Difficulty Levels</title>
     <style>
         body {
             margin: 0;
             overflow: hidden;
             font-family: 'Segoe UI', 'Tahoma', 'Cairo', sans-serif;
         }
-        /* UI Overlay */
+        
+        /* Fullscreen Start Menu Overlay */
+        .start-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a2f1a, #051a0c);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(3px);
+            transition: all 0.4s ease;
+            font-family: inherit;
+        }
+        
+        .menu-card {
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(12px);
+            border-radius: 60px;
+            padding: 30px 40px;
+            text-align: center;
+            border: 2px solid #ffb347;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,200,0.2);
+            width: 320px;
+            max-width: 85vw;
+        }
+        
+        .menu-card h1 {
+            color: #ffd966;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 0 #7a4c1a;
+        }
+        
+        .menu-card p {
+            color: #cfe6b0;
+            margin-bottom: 25px;
+            font-size: 0.9rem;
+        }
+        
+        .difficulty-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin: 25px 0;
+        }
+        
+        .difficulty-btn {
+            background: #2c3e2b;
+            border: none;
+            padding: 14px 20px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            border-radius: 60px;
+            color: #ffefc0;
+            cursor: pointer;
+            transition: 0.1s linear;
+            font-family: monospace;
+            letter-spacing: 2px;
+            box-shadow: 0 5px 0 #1a2a0e;
+        }
+        
+        .difficulty-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #1a2a0e;
+        }
+        
+        .difficulty-btn.easy {
+            background: #2f7d32;
+            border-left: 6px solid #a5d6a7;
+        }
+        .difficulty-btn.medium {
+            background: #f9a825;
+            border-left: 6px solid #ffe082;
+            color: #2d2b0a;
+        }
+        .difficulty-btn.hard {
+            background: #c62828;
+            border-left: 6px solid #ffab91;
+        }
+        
+        .info-note {
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px dashed #ffb347;
+            color: #e6c87e;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .lang-menu-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #3c2e1faa;
+            backdrop-filter: blur(8px);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 40px;
+            color: #ffeaac;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1010;
+            font-size: 0.8rem;
+        }
+        
+        .hide-menu {
+            display: none;
+        }
+        
+        /* UI that appears after game starts */
         .ui {
             position: absolute;
             top: 20px;
@@ -24,6 +137,7 @@
             z-index: 10;
             pointer-events: none;
         }
+        
         .panel {
             background: rgba(0,0,0,0.75);
             backdrop-filter: blur(10px);
@@ -37,6 +151,7 @@
             pointer-events: auto;
             font-family: monospace;
         }
+        
         .panel span {
             color: white;
             font-size: 1.6rem;
@@ -45,12 +160,13 @@
             padding: 0px 12px;
             border-radius: 40px;
         }
+        
         .restart-btn {
             background: #ff7b2c;
             border: none;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: bold;
-            padding: 6px 20px;
+            padding: 6px 18px;
             border-radius: 40px;
             color: #2d1b0a;
             cursor: pointer;
@@ -59,10 +175,7 @@
             transition: 0.07s linear;
             pointer-events: auto;
         }
-        .restart-btn:active {
-            transform: translateY(2px);
-            box-shadow: 0 1px 0 #a13f12;
-        }
+        
         .status-box {
             background: rgba(0,0,0,0.75);
             backdrop-filter: blur(8px);
@@ -73,6 +186,7 @@
             font-size: 0.9rem;
             pointer-events: auto;
         }
+        
         .hunger-container {
             position: absolute;
             bottom: 25px;
@@ -86,6 +200,7 @@
             pointer-events: none;
             border: 1px solid #f3b35e;
         }
+        
         .hunger-fill {
             width: 100%;
             height: 100%;
@@ -93,6 +208,7 @@
             border-radius: 20px;
             transition: width 0.2s linear;
         }
+        
         .hunger-label {
             position: absolute;
             bottom: 48px;
@@ -106,44 +222,44 @@
             pointer-events: none;
             font-family: monospace;
         }
-        .lang-toggle {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: #2c3e2bdd;
-            backdrop-filter: blur(8px);
-            border: none;
-            padding: 6px 14px;
-            border-radius: 30px;
-            color: #f9e0a0;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 20;
-            font-family: inherit;
-            font-size: 0.8rem;
-            pointer-events: auto;
-        }
+        
         @media (max-width: 700px) {
             .panel { font-size: 0.9rem; padding: 5px 12px; }
             .panel span { font-size: 1.2rem; }
-            .restart-btn { padding: 4px 12px; font-size: 0.9rem; }
-            .status-box { font-size: 0.7rem; }
+            .restart-btn { padding: 4px 12px; font-size: 0.8rem; }
         }
     </style>
 </head>
 <body>
-    <button class="lang-toggle" id="langBtn">🇸🇦 العربية</button>
-    <div class="ui">
+    <!-- Start Menu Overlay -->
+    <div id="startMenu" class="start-menu">
+        <div class="menu-card">
+            <h1 id="menuTitle">🐍 SNAKE LADDER</h1>
+            <p id="menuSub">Choose Difficulty / اختر الصعوبة</p>
+            <div class="difficulty-buttons">
+                <button id="easyBtn" class="difficulty-btn easy">🍃 1D - EASY / سهل</button>
+                <button id="mediumBtn" class="difficulty-btn medium">⚡ 2D - MEDIUM / متوسط</button>
+                <button id="hardBtn" class="difficulty-btn hard">🔥 3D - HARD / صعب</button>
+            </div>
+            <div class="info-note" id="infoNote">
+                📦 The game will be available as an exe file or apk file<br>
+                📦 اللعبة ستكون متاحة كملف exe أو apk
+            </div>
+        </div>
+        <button id="menuLangBtn" class="lang-menu-btn">🇸🇦 العربية</button>
+    </div>
+
+    <!-- In-Game UI (hidden until start) -->
+    <div class="ui" id="gameUI" style="display: none;">
         <div class="panel" id="scorePanel">🍎 <span id="scoreValue">0</span></div>
         <button class="restart-btn" id="resetButton">🐍 New Game</button>
         <div class="status-box" id="gameStatus">✨ Active</div>
     </div>
-    <div class="hunger-container">
+    <div class="hunger-container" id="hungerContainer" style="display: none;">
         <div class="hunger-fill" id="hungerFill"></div>
     </div>
-    <div class="hunger-label" id="hungerLabel">Hunger: decays over time | Eat apples to refill</div>
+    <div class="hunger-label" id="hungerLabel" style="display: none;">Hunger: decays over time | Eat apples to refill</div>
 
-    <!-- Import Three.js core and addons -->
     <script type="importmap">
         {
             "imports": {
@@ -155,241 +271,225 @@
 
     <script type="module">
         import * as THREE from 'three';
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
         
-        // ---------- Setup Scene (Fixed Camera) ----------
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x071a2b);
-        scene.fog = new THREE.FogExp2(0x071a2b, 0.006);
+        // ---------- Game state ----------
+        let scene, camera, renderer;
+        let gameRunning = false;
+        let gameInterval = null;
+        let currentDifficulty = null; // 'easy', 'medium', 'hard'
         
-        // Fixed camera: Isometric view, stable
-        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(16, 13, 16);
-        camera.lookAt(0, 0, 0);
-        
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        document.body.appendChild(renderer.domElement);
-        
-        // Lighting for realistic snake
-        const ambientLight = new THREE.AmbientLight(0x404060);
-        scene.add(ambientLight);
-        const mainLight = new THREE.DirectionalLight(0xfff5c0, 1.3);
-        mainLight.position.set(8, 12, 5);
-        mainLight.castShadow = true;
-        mainLight.receiveShadow = true;
-        mainLight.shadow.mapSize.width = 1024;
-        mainLight.shadow.mapSize.height = 1024;
-        scene.add(mainLight);
-        const fillLight = new THREE.PointLight(0x88aaff, 0.45);
-        fillLight.position.set(-4, 5, 4);
-        scene.add(fillLight);
-        const rimLight = new THREE.PointLight(0xffaa66, 0.5);
-        rimLight.position.set(3, 4, -6);
-        scene.add(rimLight);
-        
-        // Ground and decorative elements
-        const gridHelper = new THREE.GridHelper(26, 20, 0xaa9977, 0x7c6e4e);
-        gridHelper.position.y = -1.2;
-        gridHelper.material.transparent = true;
-        gridHelper.material.opacity = 0.4;
-        scene.add(gridHelper);
-        
-        const groundPlane = new THREE.Mesh(
-            new THREE.PlaneGeometry(18.5, 18.5),
-            new THREE.MeshStandardMaterial({ color: 0x2c5e2a, roughness: 0.7, metalness: 0.1, transparent: true, opacity: 0.3 })
-        );
-        groundPlane.rotation.x = -Math.PI / 2;
-        groundPlane.position.y = -1.1;
-        groundPlane.receiveShadow = true;
-        scene.add(groundPlane);
-        
-        // Decorative wooden borders
-        const borderMat = new THREE.MeshStandardMaterial({ color: 0xb87c4f, roughness: 0.4 });
-        const borderSize = 9.2;
-        for (let i = -borderSize; i <= borderSize; i+=1.6) {
-            const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.8, 0.25), borderMat);
-            pillar.position.set(i, -0.7, borderSize);
-            pillar.castShadow = true;
-            scene.add(pillar);
-            const pillar2 = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.8, 0.25), borderMat);
-            pillar2.position.set(i, -0.7, -borderSize);
-            pillar2.castShadow = true;
-            scene.add(pillar2);
-            const pillar3 = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.8, 0.25), borderMat);
-            pillar3.position.set(borderSize, -0.7, i);
-            pillar3.castShadow = true;
-            scene.add(pillar3);
-            const pillar4 = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.8, 0.25), borderMat);
-            pillar4.position.set(-borderSize, -0.7, i);
-            pillar4.castShadow = true;
-            scene.add(pillar4);
-        }
-        
-        // ---------- Game Configuration ----------
-        const GRID_SIZE = 15;
-        const CELL_SIZE = 1.12;
-        const OFFSET = (GRID_SIZE-1) * CELL_SIZE / 2;
-        
-        function gridToWorld(x, z) {
-            return new THREE.Vector3(x * CELL_SIZE - OFFSET, 0, z * CELL_SIZE - OFFSET);
-        }
-        
-        // Realistic snake body: each segment is a scaled sphere with smooth gradient
-        let snakeSegments = []; // Array of THREE.Mesh
-        let snakePositions = []; // {x, z} grid positions
+        // Snake data
+        let snakeSegments = [];
+        let snakePositions = [];
         let direction = 'RIGHT';
         let nextDirection = 'RIGHT';
         let foodPosition = { x: 10, z: 8 };
         let foodMesh = null;
         let score = 0;
-        let gameRunning = true;
-        
-        // Hunger system
         let hunger = 100;
-        const HUNGER_DECAY = 0.42; // per move (~140ms)
-        let gameInterval = null;
-        const GAME_SPEED = 145; // ms (slower & smooth)
         
         // DOM elements
+        const startMenuDiv = document.getElementById('startMenu');
+        const gameUIDiv = document.getElementById('gameUI');
+        const hungerContainer = document.getElementById('hungerContainer');
+        const hungerLabelSpan = document.getElementById('hungerLabel');
         const scoreSpan = document.getElementById('scoreValue');
         const statusDiv = document.getElementById('gameStatus');
         const hungerFill = document.getElementById('hungerFill');
-        const hungerLabelSpan = document.getElementById('hungerLabel');
         const scorePanelSpan = document.getElementById('scorePanel');
         const resetBtn = document.getElementById('resetButton');
-        const langBtn = document.getElementById('langBtn');
         
-        // --- Language strings ---
-        let currentLang = 'en'; // 'en' or 'ar'
-        const strings = {
+        // Language handling
+        let currentLang = 'en';
+        const langStrings = {
             en: {
-                score: '🍎 Apples',
-                newGame: '🐍 New Game',
-                active: '✨ Active',
-                deadHunger: '💀 Died of Hunger',
-                deadCollision: '💀 Hit Itself',
-                win: '🏆 Victory! Full Ladder',
-                hungerLabel: 'Hunger: decays over time | Eat apples to refill',
-                resetConfirm: ''
+                menuTitle: "🐍 SNAKE LADDER",
+                menuSub: "Choose Difficulty",
+                easyBtn: "🍃 1D - EASY",
+                mediumBtn: "⚡ 2D - MEDIUM",
+                hardBtn: "🔥 3D - HARD",
+                info: "📦 The game will be available as an exe file or apk file",
+                score: "🍎 Apples",
+                newGame: "🐍 New Game",
+                active: "✨ Active",
+                deadHunger: "💀 Died of Hunger",
+                deadCollision: "💀 Hit Itself",
+                win: "🏆 Victory! Full Ladder",
+                hungerLabel: "Hunger: decays over time | Eat apples to refill"
             },
             ar: {
-                score: '🍎 التفاحات',
-                newGame: '🐍 سلم جديد',
-                active: '🌟 نشط',
-                deadHunger: '💀 مات من الجوع',
-                deadCollision: '💀 اصطدم بنفسه',
-                win: '🏆 فوز! ملأ السلم',
-                hungerLabel: 'الجوع: ينقص مع الوقت | أكل التفاح يعيد الشبع'
+                menuTitle: "🐍 سلم التفاحة",
+                menuSub: "اختر مستوى الصعوبة",
+                easyBtn: "🍃 1D - سهل",
+                mediumBtn: "⚡ 2D - متوسط",
+                hardBtn: "🔥 3D - صعب",
+                info: "📦 اللعبة ستكون متاحة كملف exe أو apk",
+                score: "🍎 التفاحات",
+                newGame: "🐍 سلم جديد",
+                active: "🌟 نشط",
+                deadHunger: "💀 مات من الجوع",
+                deadCollision: "💀 اصطدم بنفسه",
+                win: "🏆 فوز! ملأ السلم",
+                hungerLabel: "الجوع: ينقص مع الوقت | أكل التفاح يعيد الشبع"
             }
         };
         
-        function updateLanguage() {
-            const t = strings[currentLang];
-            scorePanelSpan.innerHTML = `${t.score} <span id="scoreValue">${score}</span>`;
-            resetBtn.innerHTML = t.newGame;
-            if (gameRunning) statusDiv.innerText = t.active;
-            else if (statusDiv.innerText.includes('Hunger') || statusDiv.innerText.includes('جوع')) statusDiv.innerText = t.deadHunger;
-            else if (statusDiv.innerText.includes('Hit') || statusDiv.innerText.includes('اصطدم')) statusDiv.innerText = t.deadCollision;
-            else if (statusDiv.innerText.includes('Victory') || statusDiv.innerText.includes('فوز')) statusDiv.innerText = t.win;
-            hungerLabelSpan.innerText = t.hungerLabel;
-            // Force score span refresh
-            const scoreSpanElem = document.getElementById('scoreValue');
-            if (scoreSpanElem) scoreSpanElem.innerText = score;
+        function updateMenuLanguage() {
+            const t = langStrings[currentLang];
+            document.getElementById('menuTitle').innerText = t.menuTitle;
+            document.getElementById('menuSub').innerText = t.menuSub;
+            document.getElementById('easyBtn').innerHTML = t.easyBtn;
+            document.getElementById('mediumBtn').innerHTML = t.mediumBtn;
+            document.getElementById('hardBtn').innerHTML = t.hardBtn;
+            document.getElementById('infoNote').innerHTML = t.info;
         }
         
-        langBtn.addEventListener('click', () => {
+        function updateGameLanguage() {
+            const t = langStrings[currentLang];
+            if (scorePanelSpan) scorePanelSpan.innerHTML = `${t.score} <span id="scoreValue">${score}</span>`;
+            if (resetBtn) resetBtn.innerHTML = t.newGame;
+            if (gameRunning && statusDiv) statusDiv.innerText = t.active;
+            else if (statusDiv && statusDiv.innerText.includes('Hunger') || statusDiv.innerText.includes('جوع')) statusDiv.innerText = t.deadHunger;
+            else if (statusDiv && (statusDiv.innerText.includes('Hit') || statusDiv.innerText.includes('اصطدم'))) statusDiv.innerText = t.deadCollision;
+            else if (statusDiv && (statusDiv.innerText.includes('Victory') || statusDiv.innerText.includes('فوز'))) statusDiv.innerText = t.win;
+            if (hungerLabelSpan) hungerLabelSpan.innerText = t.hungerLabel;
+            const scoreElem = document.getElementById('scoreValue');
+            if (scoreElem) scoreElem.innerText = score;
+        }
+        
+        document.getElementById('menuLangBtn').addEventListener('click', () => {
             currentLang = currentLang === 'en' ? 'ar' : 'en';
-            updateLanguage();
+            updateMenuLanguage();
+            if (!startMenuDiv.classList.contains('hide-menu')) {
+                // menu visible
+            } else {
+                updateGameLanguage();
+            }
         });
         
-        // Create realistic apple mesh
-        function createAppleMesh(x, z) {
+        // ---------- Difficulty settings ----------
+        function getGameSpeedAndHunger() {
+            switch(currentDifficulty) {
+                case 'easy': return { speed: 180, hungerDecay: 0.28, gridSize: 15 };   // 1D easy slow
+                case 'medium': return { speed: 140, hungerDecay: 0.45, gridSize: 15 };  // 2D medium
+                case 'hard': return { speed: 105, hungerDecay: 0.68, gridSize: 15 };     // 3D hard fast
+                default: return { speed: 140, hungerDecay: 0.45, gridSize: 15 };
+            }
+        }
+        
+        // ---------- 3D Setup (fixed camera) ----------
+        function init3DScene() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x071a2b);
+            scene.fog = new THREE.FogExp2(0x071a2b, 0.006);
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(16, 13, 16);
+            camera.lookAt(0, 0, 0);
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            document.body.appendChild(renderer.domElement);
+            
+            // Lighting
+            const ambient = new THREE.AmbientLight(0x404060);
+            scene.add(ambient);
+            const mainLight = new THREE.DirectionalLight(0xfff5c0, 1.3);
+            mainLight.position.set(8, 12, 5);
+            mainLight.castShadow = true;
+            scene.add(mainLight);
+            const fillLight = new THREE.PointLight(0x88aaff, 0.45);
+            fillLight.position.set(-4, 5, 4);
+            scene.add(fillLight);
+            const rim = new THREE.PointLight(0xffaa66, 0.5);
+            rim.position.set(3, 4, -6);
+            scene.add(rim);
+            
+            // Ground
+            const gridHelper = new THREE.GridHelper(26, 20, 0xaa9977, 0x7c6e4e);
+            gridHelper.position.y = -1.2;
+            scene.add(gridHelper);
+            const ground = new THREE.Mesh(
+                new THREE.PlaneGeometry(18.5, 18.5),
+                new THREE.MeshStandardMaterial({ color: 0x2c5e2a, roughness: 0.7, transparent: true, opacity: 0.3 })
+            );
+            ground.rotation.x = -Math.PI/2;
+            ground.position.y = -1.1;
+            scene.add(ground);
+            
+            // Stars
+            const starField = new THREE.Points(
+                new THREE.BufferGeometry(),
+                new THREE.PointsMaterial({ color: 0xffdd99, size: 0.07 })
+            );
+            const starCount = 800;
+            const positions = new Float32Array(starCount * 3);
+            for (let i = 0; i < starCount; i++) {
+                positions[i*3] = (Math.random() - 0.5) * 200;
+                positions[i*3+1] = (Math.random() - 0.5) * 35 + 6;
+                positions[i*3+2] = (Math.random() - 0.5) * 120 - 50;
+            }
+            starField.geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            scene.add(starField);
+        }
+        
+        function gridToWorld(x, z, GRID_SIZE=15, CELL_SIZE=1.12) {
+            const OFFSET = (GRID_SIZE-1) * CELL_SIZE / 2;
+            return new THREE.Vector3(x * CELL_SIZE - OFFSET, 0, z * CELL_SIZE - OFFSET);
+        }
+        
+        function createAppleMesh(x, z, GRID_SIZE, CELL_SIZE) {
             const group = new THREE.Group();
             const bodyGeo = new THREE.SphereGeometry(0.42, 32, 32);
-            const materialRed = new THREE.MeshStandardMaterial({ color: 0xdc4c3a, roughness: 0.25, emissive: 0x331100 });
+            const materialRed = new THREE.MeshStandardMaterial({ color: 0xdc4c3a, roughness: 0.25 });
             const appleBody = new THREE.Mesh(bodyGeo, materialRed);
             appleBody.castShadow = true;
             group.add(appleBody);
-            const stemGeo = new THREE.CylinderGeometry(0.08, 0.1, 0.22);
-            const stemMat = new THREE.MeshStandardMaterial({ color: 0x8b5a2b });
-            const stem = new THREE.Mesh(stemGeo, stemMat);
+            const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 0.22), new THREE.MeshStandardMaterial({ color: 0x8b5a2b }));
             stem.position.set(0, 0.48, 0);
             group.add(stem);
-            const leafGeo = new THREE.BoxGeometry(0.22, 0.06, 0.12);
-            const leafMat = new THREE.MeshStandardMaterial({ color: 0x6aab35 });
-            const leaf = new THREE.Mesh(leafGeo, leafMat);
+            const leaf = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.06, 0.12), new THREE.MeshStandardMaterial({ color: 0x6aab35 }));
             leaf.position.set(0.2, 0.52, 0.06);
             leaf.rotation.z = 0.65;
             group.add(leaf);
-            const pos = gridToWorld(x, z);
+            const pos = gridToWorld(x, z, GRID_SIZE, CELL_SIZE);
             group.position.copy(pos);
             group.position.y = 0.2;
             scene.add(group);
             return group;
         }
         
-        // Create realistic snake segment with scales effect
-        function createSnakeSegment(color, isHead = false, index = 0) {
+        function createSnakeSegment(color, isHead=false) {
             const geometry = new THREE.SphereGeometry(0.52, 36, 36);
-            const material = new THREE.MeshStandardMaterial({ color: color, roughness: 0.28, metalness: 0.15 });
+            const material = new THREE.MeshStandardMaterial({ color: color, roughness: 0.28 });
             const sphere = new THREE.Mesh(geometry, material);
             sphere.castShadow = true;
-            sphere.receiveShadow = false;
             if (isHead) {
-                // Add eyes and tongue for realism
                 const eyeMatWhite = new THREE.MeshStandardMaterial({ color: 0xffffff });
-                const eyeMatBlack = new THREE.MeshStandardMaterial({ color: 0x000000 });
                 const leftEye = new THREE.Mesh(new THREE.SphereGeometry(0.12, 24, 24), eyeMatWhite);
-                const rightEye = new THREE.Mesh(new THREE.SphereGeometry(0.12, 24, 24), eyeMatWhite);
                 leftEye.position.set(-0.28, 0.28, 0.55);
-                rightEye.position.set(0.28, 0.28, 0.55);
                 sphere.add(leftEye);
+                const rightEye = new THREE.Mesh(new THREE.SphereGeometry(0.12, 24, 24), eyeMatWhite);
+                rightEye.position.set(0.28, 0.28, 0.55);
                 sphere.add(rightEye);
-                const leftPupil = new THREE.Mesh(new THREE.SphereGeometry(0.07, 24, 24), eyeMatBlack);
-                const rightPupil = new THREE.Mesh(new THREE.SphereGeometry(0.07, 24, 24), eyeMatBlack);
+                const pupilMat = new THREE.MeshStandardMaterial({ color: 0x000000 });
+                const leftPupil = new THREE.Mesh(new THREE.SphereGeometry(0.07, 24, 24), pupilMat);
                 leftPupil.position.set(-0.28, 0.24, 0.64);
-                rightPupil.position.set(0.28, 0.24, 0.64);
                 sphere.add(leftPupil);
+                const rightPupil = new THREE.Mesh(new THREE.SphereGeometry(0.07, 24, 24), pupilMat);
+                rightPupil.position.set(0.28, 0.24, 0.64);
                 sphere.add(rightPupil);
-                // tiny tongue
-                const tongueMat = new THREE.MeshStandardMaterial({ color: 0xdd5544 });
-                const tongue = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.2, 6), tongueMat);
-                tongue.position.set(0, 0.1, 0.72);
-                tongue.rotation.x = 0.3;
-                sphere.add(tongue);
-            } else {
-                // add little bumps for scales effect
-                const bumpMat = new THREE.MeshStandardMaterial({ color: 0x3f8a2a });
-                for (let i = -1; i <= 1; i++) {
-                    const bump = new THREE.Mesh(new THREE.SphereGeometry(0.09, 8, 8), bumpMat);
-                    bump.position.set(i * 0.35, 0.2, 0.52);
-                    sphere.add(bump);
-                    const bump2 = new THREE.Mesh(new THREE.SphereGeometry(0.09, 8, 8), bumpMat);
-                    bump2.position.set(i * 0.35, -0.25, 0.52);
-                    sphere.add(bump2);
-                }
             }
             return sphere;
         }
         
-        function rebuildSnakeVisuals() {
-            // remove old
+        function rebuildSnakeVisuals(GRID_SIZE, CELL_SIZE) {
             snakeSegments.forEach(seg => scene.remove(seg));
             snakeSegments = [];
             for (let i = 0; i < snakePositions.length; i++) {
                 const pos = snakePositions[i];
-                const worldPos = gridToWorld(pos.x, pos.z);
-                let color;
-                if (i === 0) color = 0x7ec850;
-                else {
-                    const t = i / snakePositions.length;
-                    color = 0x5ca832;
-                }
-                const isHead = (i === 0);
-                const segment = createSnakeSegment(color, isHead, i);
+                const worldPos = gridToWorld(pos.x, pos.z, GRID_SIZE, CELL_SIZE);
+                const color = i === 0 ? 0x7ec850 : 0x5ca832;
+                const segment = createSnakeSegment(color, i === 0);
                 segment.position.copy(worldPos);
                 segment.position.y = 0.23;
                 scene.add(segment);
@@ -397,24 +497,18 @@
             }
         }
         
-        function respawnFood() {
-            if (!gameRunning) return;
+        function respawnFood(GRID_SIZE, CELL_SIZE) {
             const occupied = new Set(snakePositions.map(p => `${p.x},${p.z}`));
-            if (occupied.size >= GRID_SIZE * GRID_SIZE) {
-                gameWin();
-                return;
-            }
             let free = [];
-            for (let i = 0; i < GRID_SIZE; i++) {
-                for (let j = 0; j < GRID_SIZE; j++) {
+            for (let i = 0; i < GRID_SIZE; i++)
+                for (let j = 0; j < GRID_SIZE; j++)
                     if (!occupied.has(`${i},${j}`)) free.push({ x: i, z: j });
-                }
-            }
-            if (free.length === 0) { gameWin(); return; }
+            if (free.length === 0) { gameWin(); return false; }
             const rand = Math.floor(Math.random() * free.length);
             foodPosition = free[rand];
             if (foodMesh) scene.remove(foodMesh);
-            foodMesh = createAppleMesh(foodPosition.x, foodPosition.z);
+            foodMesh = createAppleMesh(foodPosition.x, foodPosition.z, GRID_SIZE, CELL_SIZE);
+            return true;
         }
         
         function gameOver(reason) {
@@ -422,10 +516,8 @@
             gameRunning = false;
             if (gameInterval) clearInterval(gameInterval);
             gameInterval = null;
-            const t = strings[currentLang];
-            if (reason === 'hunger') statusDiv.innerText = t.deadHunger;
-            else statusDiv.innerText = t.deadCollision;
-            statusDiv.style.background = "rgba(100,30,10,0.9)";
+            const t = langStrings[currentLang];
+            statusDiv.innerText = (reason === 'hunger') ? t.deadHunger : t.deadCollision;
         }
         
         function gameWin() {
@@ -433,183 +525,140 @@
             gameRunning = false;
             if (gameInterval) clearInterval(gameInterval);
             gameInterval = null;
-            const t = strings[currentLang];
-            statusDiv.innerText = t.win;
-            statusDiv.style.background = "rgba(180,130,30,0.9)";
+            statusDiv.innerText = langStrings[currentLang].win;
         }
         
-        function moveSnake() {
-            if (!gameRunning) return;
-            
-            // Hunger decay
-            hunger -= HUNGER_DECAY;
-            const hungerPercent = Math.max(0, (hunger / 100) * 100);
-            hungerFill.style.width = `${hungerPercent}%`;
-            if (hunger <= 0) {
-                gameOver('hunger');
-                return;
-            }
-            if (hunger < 30) hungerFill.style.background = "linear-gradient(90deg, #e34d2c, #ff8c42)";
-            else hungerFill.style.background = "linear-gradient(90deg, #6fbf4c, #f5a623)";
-            
-            // direction handling
-            let newDir = nextDirection;
-            if ((newDir === 'RIGHT' && direction === 'LEFT') ||
-                (newDir === 'LEFT' && direction === 'RIGHT') ||
-                (newDir === 'UP' && direction === 'DOWN') ||
-                (newDir === 'DOWN' && direction === 'UP')) {
-                newDir = direction;
-            }
-            direction = newDir;
-            
-            let head = snakePositions[0];
-            let newHead = { ...head };
-            switch(direction) {
-                case 'RIGHT': newHead.x += 1; break;
-                case 'LEFT': newHead.x -= 1; break;
-                case 'UP': newHead.z -= 1; break;
-                case 'DOWN': newHead.z += 1; break;
-            }
-            
-            // WALL CLIPPING (wrap around)
-            if (newHead.x < 0) newHead.x = GRID_SIZE - 1;
-            if (newHead.x >= GRID_SIZE) newHead.x = 0;
-            if (newHead.z < 0) newHead.z = GRID_SIZE - 1;
-            if (newHead.z >= GRID_SIZE) newHead.z = 0;
-            
-            const willEat = (newHead.x === foodPosition.x && newHead.z === foodPosition.z);
-            
-            snakePositions.unshift(newHead);
-            if (!willEat) {
-                snakePositions.pop();
-            } else {
-                score++;
-                scoreSpan.innerText = score;
-                // update language-aware score panel
-                const t = strings[currentLang];
-                scorePanelSpan.innerHTML = `${t.score} <span id="scoreValue">${score}</span>`;
-                hunger = 100;
-                hungerFill.style.width = `100%`;
-                respawnFood();
-            }
-            
-            // self-collision check
-            const headPos = snakePositions[0];
-            for (let i = 1; i < snakePositions.length; i++) {
-                if (snakePositions[i].x === headPos.x && snakePositions[i].z === headPos.z) {
-                    gameOver('collision');
-                    return;
-                }
-            }
-            
-            rebuildSnakeVisuals();
-        }
-        
-        function resetGame() {
-            if (gameInterval) clearInterval(gameInterval);
-            snakeSegments.forEach(seg => scene.remove(seg));
-            if (foodMesh) scene.remove(foodMesh);
+        function startGameLogic(GRID_SIZE, CELL_SIZE, gameSpeed, hungerDecay) {
             // init snake
             snakePositions = [
-                { x: 7, z: 7 },
-                { x: 6, z: 7 },
-                { x: 5, z: 7 },
-                { x: 4, z: 7 },
-                { x: 3, z: 7 }
+                { x: 7, z: 7 }, { x: 6, z: 7 }, { x: 5, z: 7 }, { x: 4, z: 7 }, { x: 3, z: 7 }
             ];
             direction = 'RIGHT';
             nextDirection = 'RIGHT';
             score = 0;
-            scoreSpan.innerText = "0";
             hunger = 100;
+            document.getElementById('scoreValue').innerText = "0";
+            updateGameLanguage();
             hungerFill.style.width = "100%";
             gameRunning = true;
-            const t = strings[currentLang];
-            statusDiv.innerText = t.active;
-            statusDiv.style.background = "rgba(0,0,0,0.75)";
-            scorePanelSpan.innerHTML = `${t.score} <span id="scoreValue">0</span>`;
             
-            // random food away from snake
             const occupiedSet = new Set(snakePositions.map(p => `${p.x},${p.z}`));
             let freeCells = [];
-            for (let i = 0; i < GRID_SIZE; i++) {
-                for (let j = 0; j < GRID_SIZE; j++) {
+            for (let i = 0; i < GRID_SIZE; i++)
+                for (let j = 0; j < GRID_SIZE; j++)
                     if (!occupiedSet.has(`${i},${j}`)) freeCells.push({ x: i, z: j });
-                }
-            }
             if (freeCells.length) foodPosition = freeCells[Math.floor(Math.random() * freeCells.length)];
             else foodPosition = { x: 10, z: 10 };
             if (foodMesh) scene.remove(foodMesh);
-            foodMesh = createAppleMesh(foodPosition.x, foodPosition.z);
-            rebuildSnakeVisuals();
+            foodMesh = createAppleMesh(foodPosition.x, foodPosition.z, GRID_SIZE, CELL_SIZE);
+            rebuildSnakeVisuals(GRID_SIZE, CELL_SIZE);
             
+            if (gameInterval) clearInterval(gameInterval);
             gameInterval = setInterval(() => {
-                moveSnake();
-                if (!gameRunning && gameInterval) {
-                    // nothing extra
+                if (!gameRunning) return;
+                // hunger decay
+                hunger -= hungerDecay;
+                const percent = Math.max(0, (hunger / 100) * 100);
+                hungerFill.style.width = `${percent}%`;
+                if (hunger <= 0) { gameOver('hunger'); return; }
+                
+                let newDir = nextDirection;
+                if ((newDir === 'RIGHT' && direction === 'LEFT') ||
+                    (newDir === 'LEFT' && direction === 'RIGHT') ||
+                    (newDir === 'UP' && direction === 'DOWN') ||
+                    (newDir === 'DOWN' && direction === 'UP')) newDir = direction;
+                direction = newDir;
+                let head = snakePositions[0];
+                let newHead = { ...head };
+                switch(direction) {
+                    case 'RIGHT': newHead.x += 1; break;
+                    case 'LEFT': newHead.x -= 1; break;
+                    case 'UP': newHead.z -= 1; break;
+                    case 'DOWN': newHead.z += 1; break;
                 }
-            }, GAME_SPEED);
+                // wrap around (wall clip)
+                if (newHead.x < 0) newHead.x = GRID_SIZE-1;
+                if (newHead.x >= GRID_SIZE) newHead.x = 0;
+                if (newHead.z < 0) newHead.z = GRID_SIZE-1;
+                if (newHead.z >= GRID_SIZE) newHead.z = 0;
+                
+                const willEat = (newHead.x === foodPosition.x && newHead.z === foodPosition.z);
+                snakePositions.unshift(newHead);
+                if (!willEat) snakePositions.pop();
+                else {
+                    score++;
+                    document.getElementById('scoreValue').innerText = score;
+                    updateGameLanguage();
+                    hunger = 100;
+                    hungerFill.style.width = "100%";
+                    const success = respawnFood(GRID_SIZE, CELL_SIZE);
+                    if (!success) return;
+                }
+                // self collision
+                const headPos = snakePositions[0];
+                for (let i=1; i<snakePositions.length; i++) {
+                    if (snakePositions[i].x === headPos.x && snakePositions[i].z === headPos.z) {
+                        gameOver('collision');
+                        return;
+                    }
+                }
+                rebuildSnakeVisuals(GRID_SIZE, CELL_SIZE);
+            }, gameSpeed);
         }
         
-        // Keyboard controls
-        window.addEventListener('keydown', (e) => {
-            if (!gameRunning) return;
-            const key = e.key;
-            if (key === 'ArrowUp' || key === 'ArrowDown' || key === 'ArrowLeft' || key === 'ArrowRight') {
-                e.preventDefault();
-            }
-            switch(key) {
-                case 'ArrowUp': nextDirection = 'UP'; break;
-                case 'ArrowDown': nextDirection = 'DOWN'; break;
-                case 'ArrowLeft': nextDirection = 'LEFT'; break;
-                case 'ArrowRight': nextDirection = 'RIGHT'; break;
-                default: break;
-            }
-        });
-        
-        resetBtn.addEventListener('click', () => resetGame());
-        
-        // Star particle effect for ambiance
-        const starField = new THREE.Points(
-            new THREE.BufferGeometry(),
-            new THREE.PointsMaterial({ color: 0xffdd99, size: 0.07 })
-        );
-        const starCount = 800;
-        const starPositionsArr = new Float32Array(starCount * 3);
-        for (let i = 0; i < starCount; i++) {
-            starPositionsArr[i*3] = (Math.random() - 0.5) * 200;
-            starPositionsArr[i*3+1] = (Math.random() - 0.5) * 35 + 6;
-            starPositionsArr[i*3+2] = (Math.random() - 0.5) * 120 - 50;
-        }
-        starField.geometry.setAttribute('position', new THREE.BufferAttribute(starPositionsArr, 3));
-        scene.add(starField);
-        
-        // Animation loop & floating apple effect
         function animate() {
             requestAnimationFrame(animate);
-            if (foodMesh && gameRunning) {
-                foodMesh.position.y = 0.2 + Math.sin(Date.now() * 0.007) * 0.07;
-            }
-            // subtle idle sway for snake head (realism)
-            if (gameRunning && snakeSegments.length > 0) {
-                const headMesh = snakeSegments[0];
-                if (headMesh) {
-                    headMesh.position.y = 0.23 + Math.sin(Date.now() * 0.012) * 0.008;
+            if (renderer && scene && camera) {
+                if (foodMesh && gameRunning) {
+                    foodMesh.position.y = 0.2 + Math.sin(Date.now() * 0.007) * 0.07;
                 }
+                renderer.render(scene, camera);
             }
-            renderer.render(scene, camera);
         }
-        animate();
-        resetGame();
         
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
+        function startGame(difficulty) {
+            currentDifficulty = difficulty;
+            let { speed, hungerDecay, gridSize } = getGameSpeedAndHunger();
+            const CELL_SIZE_VAL = 1.12;
+            // remove any previous scene elements if exist
+            if (renderer && renderer.domElement) renderer.domElement.remove();
+            init3DScene();
+            // show game UI, hide menu
+            startMenuDiv.classList.add('hide-menu');
+            gameUIDiv.style.display = 'flex';
+            hungerContainer.style.display = 'block';
+            hungerLabelSpan.style.display = 'block';
+            startGameLogic(gridSize, CELL_SIZE_VAL, speed, hungerDecay);
+            animate();
+            
+            // reset button action
+            const resetFunc = () => {
+                if (gameInterval) clearInterval(gameInterval);
+                startGameLogic(gridSize, CELL_SIZE_VAL, speed, hungerDecay);
+                statusDiv.innerText = langStrings[currentLang].active;
+                gameRunning = true;
+            };
+            resetBtn.onclick = resetFunc;
+            
+            // keyboard controls
+            window.onkeydown = (e) => {
+                if (!gameRunning) return;
+                const key = e.key;
+                if (key === 'ArrowUp' || key === 'ArrowDown' || key === 'ArrowLeft' || key === 'ArrowRight') e.preventDefault();
+                switch(key) {
+                    case 'ArrowUp': nextDirection = 'UP'; break;
+                    case 'ArrowDown': nextDirection = 'DOWN'; break;
+                    case 'ArrowLeft': nextDirection = 'LEFT'; break;
+                    case 'ArrowRight': nextDirection = 'RIGHT'; break;
+                }
+            };
+        }
         
-        // initial language sync
-        updateLanguage();
+        document.getElementById('easyBtn').addEventListener('click', () => startGame('easy'));
+        document.getElementById('mediumBtn').addEventListener('click', () => startGame('medium'));
+        document.getElementById('hardBtn').addEventListener('click', () => startGame('hard'));
+        
+        updateMenuLanguage();
     </script>
 </body>
 </html>
